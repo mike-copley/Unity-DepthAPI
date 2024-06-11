@@ -17,6 +17,9 @@ public class RaycastVisualizer : MonoBehaviour
     public Vector3 LastKnownPointChange { get; private set; }
     public Vector3 LastKnownNormal { get; private set; }
     public Vector3 LastKnownNormalChange { get; private set; }
+    public Vector3 ReferenceOrientationUp { get; private set; }
+    public Vector3 ReferenceOrientationRight { get; private set; }
+    public Vector3 ReferenceOrientationDirection { get; private set; }
     
     // Start is called before the first frame update
     void Start()
@@ -38,6 +41,9 @@ public class RaycastVisualizer : MonoBehaviour
                 out var result);
             PlacedObject.transform.SetPositionAndRotation(result.Position, Quaternion.LookRotation(result.Normal));
             UpdateLastKnowns(result);
+            ReferenceOrientationUp = Source.transform.forward;
+            ReferenceOrientationRight = Source.transform.right;
+            ReferenceOrientationDirection = Source.transform.up;
         }
 
         else
@@ -50,6 +56,9 @@ public class RaycastVisualizer : MonoBehaviour
                 out var result);
             PlacedObject.transform.SetPositionAndRotation(result.Position, Quaternion.LookRotation(result.Normal));
             UpdateLastKnowns(result);
+            ReferenceOrientationUp = camera.transform.up;
+            ReferenceOrientationRight = camera.transform.right;
+            ReferenceOrientationDirection = camera.transform.forward;
         }
     }
 

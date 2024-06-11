@@ -7,7 +7,7 @@ public class SurfaceMaker : MonoBehaviour
     public GameObject SurfacesContainer;
     public GameObject SurfacePointPrefab;
 
-    public float SpaceBetweenPoints = 0.05F;
+    public float SpaceBetweenPoints = 0.02F;
     public float PointDistanceFromSurfacePlaneForAdd = 0.05F;
     public float NormalAngleFromSurfacePlaneForAdd = 15.0F;
     
@@ -26,14 +26,19 @@ public class SurfaceMaker : MonoBehaviour
         
     }
 
-    public void StartNewSurface(Vector3 surfacePlaneOrigin, Vector3 surfacePlaneNormal)
+    public void StartNewSurface(
+        Vector3 referenceOrientationUp, Vector3 referenceOrientationRight, 
+        Vector3 surfacePlaneOrigin, Vector3 surfacePlaneNormal)
     {
         Debug.Log($"SurfaceMaker.StartNewSurface({surfacePlaneOrigin}, {surfacePlaneNormal})");
         var newSurfaceObject = new GameObject("Surface");
         var newSurface = newSurfaceObject.AddComponent<Surface>();
         _activeSurface = newSurface;
         _activeSurface.transform.parent = SurfacesContainer.transform;
-        _activeSurface.Begin();
+        _activeSurface.Begin(
+            referenceOrientationUp, referenceOrientationRight, 
+            surfacePlaneOrigin, surfacePlaneNormal, 
+            SpaceBetweenPoints);
     }
 
     public void AddPointToActiveSurface(Vector3 point, Vector3 normal)

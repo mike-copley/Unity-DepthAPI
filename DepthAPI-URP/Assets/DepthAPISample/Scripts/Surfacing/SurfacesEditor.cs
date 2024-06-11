@@ -38,6 +38,8 @@ public class SurfacesEditor : MonoBehaviour
     {
         Debug.Log($"SurfacesEditor.HandleRightTriggerDown()");
         SurfaceMaker.StartNewSurface(
+            SurfaceEditControls.HeadRaycaster.ReferenceOrientationUp,
+            SurfaceEditControls.HeadRaycaster.ReferenceOrientationRight,
             SurfaceEditControls.HeadRaycaster.LastKnownPoint,
             SurfaceEditControls.HeadRaycaster.LastKnownNormal);
         SurfaceMaker.AddPointToActiveSurface(
