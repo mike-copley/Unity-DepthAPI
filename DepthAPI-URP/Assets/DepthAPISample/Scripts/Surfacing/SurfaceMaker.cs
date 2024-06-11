@@ -28,6 +28,7 @@ public class SurfaceMaker : MonoBehaviour
 
     public void StartNewSurface(Vector3 surfacePlaneOrigin, Vector3 surfacePlaneNormal)
     {
+        Debug.Log($"SurfaceMaker.StartNewSurface({surfacePlaneOrigin}, {surfacePlaneNormal})");
         var newSurfaceObject = new GameObject("Surface");
         var newSurface = newSurfaceObject.AddComponent<Surface>();
         _activeSurface = newSurface;
@@ -37,11 +38,13 @@ public class SurfaceMaker : MonoBehaviour
 
     public void AddPointToActiveSurface(Vector3 point, Vector3 normal)
     {
+        Debug.Log($"SurfaceMaker.AddPointToActiveSurface({point}, {normal})");
         _activeSurface.AddPointToSurface(SurfacePointPrefab, point, normal);
     }
     
     public void EndActiveSurface()
     {
+        Debug.Log($"SurfaceMaker.EndActiveSurface()");
         _Surfaces.Add(_activeSurface);
         _activeSurface.End();
         _activeSurface = null;

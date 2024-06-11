@@ -20,11 +20,13 @@ public class Surface : MonoBehaviour
 
     public void Begin()
     {
+        Debug.Log($"Surface.Begin()");
         _surfacePoints.Clear();
     }
 
     public void AddPointToSurface(GameObject prefab, Vector3 point, Vector3 normal)
     {
+        Debug.Log($"Surface.AddPointToSurface({prefab.name}, {point}, {normal})");
         if (_surfacePoints.Count == 0)
         {
             var rotation = Quaternion.LookRotation(normal);
@@ -36,6 +38,6 @@ public class Surface : MonoBehaviour
     
     public void End()
     {
-        
+        Debug.Log($"Surface.End()");
     }
 }
