@@ -13,7 +13,10 @@ public class RaycastVisualizer : MonoBehaviour
 
     private GameObject PlacedObject;
     
-    private int frame = 0;
+    public Vector3 LastKnownPoint { get; private set; }
+    public Vector3 LastKnownPointChange { get; private set; }
+    public Vector3 LastKnownNormal { get; private set; }
+    public Vector3 LastKnownNormalChange { get; private set; }
     
     // Start is called before the first frame update
     void Start()
@@ -25,9 +28,6 @@ public class RaycastVisualizer : MonoBehaviour
     void Update()
     {
         var camera = Camera.allCameras[0];
-    
-        // Debug.LogWarning($"Camera: {camera.name}, {camera.transform.position}, {camera.transform.forward}");
-        // Debug.LogWarning($"Camera: {camera.name}, {Source.position}, {Source.up}");
 
         if (!UseCameraAsSource)
         {
@@ -37,6 +37,7 @@ public class RaycastVisualizer : MonoBehaviour
                 new Ray(origin, direction),
                 out var result);
             PlacedObject.transform.SetPositionAndRotation(result.Position, Quaternion.LookRotation(result.Normal));
+            UpdateLastKnowns(result);
         }
 
         else
@@ -48,6 +49,16 @@ public class RaycastVisualizer : MonoBehaviour
                 new Ray(origin, direction),
                 out var result);
             PlacedObject.transform.SetPositionAndRotation(result.Position, Quaternion.LookRotation(result.Normal));
+            UpdateLastKnowns(result);
         }
+    }
+
+    private void UpdateLastKnowns(DepthCastResult result)
+    {
+        LastKnownPoint = result.Position;
+        LastKnownNormal = result.Normal;
+
+        LastKnownPointChange = result.Position - LastKnownPoint;
+        LastKnownNormalChange = result.Normal - LastKnownNormal;
     }
 }
