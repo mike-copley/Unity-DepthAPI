@@ -6,8 +6,8 @@ using UnityEngine.Events;
 public class SurfaceEditControls : MonoBehaviour
 {
     // Grip trigger thresholds for picking up objects, with some hysteresis.
-    public float grabBegin = 0.55f;
-    public float grabEnd = 0.35f;
+    public float grabBegin = 0.75F;
+    public float grabEnd = 0.25F;
     public float pointDistanceChangeMovementThresh = 0.01F;
 
     public OVRInput.Controller LeftController;

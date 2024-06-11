@@ -47,7 +47,7 @@ public class SurfacesEditor : MonoBehaviour
 
     public void HandleRightControllerMovedWhenDown()
     {
-        Debug.Log($"SurfacesEditor.HandleRightControllerMovedWhenDown()");
+        // Debug.Log($"SurfacesEditor.HandleRightControllerMovedWhenDown()");
         SurfaceMaker.AddPointToActiveSurface(
             SurfaceEditControls.RightRaycaster.LastKnownPoint,
             SurfaceEditControls.RightRaycaster.LastKnownNormal);

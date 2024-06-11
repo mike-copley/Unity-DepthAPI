@@ -55,10 +55,10 @@ public class RaycastVisualizer : MonoBehaviour
 
     private void UpdateLastKnowns(DepthCastResult result)
     {
-        LastKnownPoint = result.Position;
-        LastKnownNormal = result.Normal;
-
         LastKnownPointChange = result.Position - LastKnownPoint;
         LastKnownNormalChange = result.Normal - LastKnownNormal;
+
+        LastKnownPoint = result.Position;
+        LastKnownNormal = result.Normal;
     }
 }
