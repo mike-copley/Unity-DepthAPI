@@ -11,12 +11,7 @@ public class Surface : MonoBehaviour
     public Vector3 SurfaceUp { get; private set; }
     public Vector3 SurfaceRight { get; private set; }
     
-    public Vector3 SurfaceOrientationUp { get; private set; }
-    public Vector3 SurfaceOrientationRight { get; private set; }
-    
     private float SpaceBetweenPoints { get; set; }
-    private float HalfSpaceBetweenPoints { get; set; }
-    private float QuatSpaceBetweenPoints { get; set; }
 
     private Dictionary<int, Dictionary<int, SurfacePoint>> _pointsByUVs = new();
     
@@ -41,30 +36,36 @@ public class Surface : MonoBehaviour
         
         _surfacePoints.Clear();
         _pointsByUVs.Clear();
-
-        SurfaceOrientationUp = referenceOrientationUp;
-        SurfaceOrientationRight = referenceOrientationRight;
         
         SurfaceOrigin = surfacePlaneOrigin;
         SurfaceNormal = surfacePlaneNormal;
         
         SpaceBetweenPoints = spaceBetweenPoints;
-        HalfSpaceBetweenPoints = 0.5F * SpaceBetweenPoints;
-        QuatSpaceBetweenPoints = 0.5F * HalfSpaceBetweenPoints;
 
-        SurfaceUp = Vector3.Cross(SurfaceOrientationRight, SurfaceNormal);
+        SurfaceUp = Vector3.Cross(referenceOrientationRight, SurfaceNormal);
         SurfaceRight = Vector3.Cross(SurfaceNormal, SurfaceUp);
     }
 
     public void AddPointToSurface(GameObject prefab, Vector3 point, Vector3 normal)
     {
         Debug.Log($"Surface.AddPointToSurface({prefab.name}, {point}, {normal})");
-        if (_surfacePoints.Count == 0)
+        // if (_surfacePoints.Count == 0)
+        if (CalculatePointUVs(point, out var u, out var v, out var w))
         {
-            var rotation = Quaternion.LookRotation(normal);
-            var newPoint = Instantiate(prefab, this.transform);
-            newPoint.transform.SetPositionAndRotation(point, rotation);
-            _surfacePoints.Add(newPoint.AddComponent<SurfacePoint>());
+            if (!DoesPointExist(u, v))
+            {
+                CalculatePointForUVs(u, v, w, out var position);
+                
+                var rotation = Quaternion.LookRotation(normal);
+                var newPoint = Instantiate(prefab, this.transform);
+                newPoint.transform.SetPositionAndRotation(position, rotation);
+
+                var newSurfacePoint = newPoint.AddComponent<SurfacePoint>();
+                newSurfacePoint.point = position;
+                newSurfacePoint.normal = normal;
+                
+                AddPointForUVs(u, v, newSurfacePoint);
+            }
         }
     }
     
@@ -82,17 +83,25 @@ public class Surface : MonoBehaviour
         if (!IsValidPoint(point))
             return false;
 
-        // TODO:
+        var d = point - SurfaceOrigin;
         
+        var s = Vector3.Dot(d, SurfaceRight) / SpaceBetweenPoints;
+        var t = Vector3.Dot(d, SurfaceUp) / SpaceBetweenPoints;
+
+        u = Mathf.RoundToInt(s);
+        v = Mathf.RoundToInt(t);
+
+        w = Vector3.Dot(d, SurfaceNormal);
         
         return true;
     }
 
     private void CalculatePointForUVs(int u, int v, float w, out Vector3 point)
     {
-        point = SurfaceOrigin;
-        
-        // TODO:
+        point = SurfaceOrigin + 
+                (u * SpaceBetweenPoints * SurfaceRight) + 
+                (v * SpaceBetweenPoints * SurfaceUp) +
+                (w * SurfaceNormal);
     }
 
     private bool DoesPointExist(int u, int v)
@@ -117,10 +126,26 @@ public class Surface : MonoBehaviour
         {
             _pointsByUVs[u].Add(v, surfacePoint);
         }
+
+        _surfacePoints.Add(surfacePoint);
     }
     
     private bool IsValidPoint(Vector3 point)
     {
-        return false;
+        // var d = point - SurfaceOrigin;
+        //
+        // var s = Vector3.Dot(d, SurfaceRight) / SpaceBetweenPoints;
+        // var t = Vector3.Dot(d, SurfaceUp) / SpaceBetweenPoints;
+        //
+        // var x = Mathf.Abs(s - Mathf.Floor(s));
+        // var y = Mathf.Abs(t - Mathf.Floor(t));
+        //
+        // if (x is > 0.25F and < 0.75F)
+        //     return false;
+        //
+        // if (y is > 0.25F and < 0.75F)
+        //     return false;
+        //
+        return true;
     }
 }

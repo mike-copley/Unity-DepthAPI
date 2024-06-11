@@ -44,6 +44,22 @@ public class SurfaceMaker : MonoBehaviour
     public void AddPointToActiveSurface(Vector3 point, Vector3 normal)
     {
         Debug.Log($"SurfaceMaker.AddPointToActiveSurface({point}, {normal})");
+
+        var d = point - _activeSurface.SurfaceOrigin;
+        var w = Vector3.Dot(d, _activeSurface.SurfaceNormal);
+
+        if (Mathf.Abs(w) > PointDistanceFromSurfacePlaneForAdd)
+        {
+            return;
+        }
+
+        var a = Vector3.Dot(normal, _activeSurface.SurfaceNormal);
+
+        if (a < Mathf.Cos(Mathf.Deg2Rad * NormalAngleFromSurfacePlaneForAdd))
+        {
+            return;
+        }
+        
         _activeSurface.AddPointToSurface(SurfacePointPrefab, point, normal);
     }
     

@@ -1859,8 +1859,8 @@ MonoBehaviour:
   SurfacesContainer: {fileID: 185368956}
   SurfacePointPrefab: {fileID: 4818305188428498892, guid: 9a369f60c45bc470e89dc62a04e821f5,
     type: 3}
-  SpaceBetweenPoints: 0.02
-  PointDistanceFromSurfacePlaneForAdd: 0.05
+  SpaceBetweenPoints: 0.03
+  PointDistanceFromSurfacePlaneForAdd: 0.03
   NormalAngleFromSurfacePlaneForAdd: 15
 --- !u!4 &2034223048
 Transform:
