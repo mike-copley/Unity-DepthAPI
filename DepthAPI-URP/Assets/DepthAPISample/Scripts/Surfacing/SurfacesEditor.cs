@@ -21,12 +21,12 @@ public class SurfacesEditor : MonoBehaviour
 
     public void HandleLeftTriggerDown()
     {
-        SurfaceMaker.RemoveLastSurface();
     }
 
     public void HandleLeftControlledMovedWhenDown()
     {
-        
+        SurfaceMaker.RemovePointFromActiveSurface(
+            SurfaceEditControls.LeftRaycaster.LastKnownPoint);
     }
     
     public void HandleLeftTriggerUp()
@@ -34,14 +34,22 @@ public class SurfacesEditor : MonoBehaviour
         
     }
 
+    public void HandleLeftSqueeze()
+    {
+        SurfaceMaker.RemoveLastSurface();
+    }
+
     public void HandleRightTriggerDown()
     {
-        Debug.Log($"SurfacesEditor.HandleRightTriggerDown()");
-        SurfaceMaker.StartNewSurface(
-            SurfaceEditControls.HeadRaycaster.ReferenceOrientationUp,
-            SurfaceEditControls.HeadRaycaster.ReferenceOrientationRight,
-            SurfaceEditControls.HeadRaycaster.LastKnownPoint,
-            SurfaceEditControls.HeadRaycaster.LastKnownNormal);
+        if (SurfaceMaker.ActiveSurface == null)
+        {
+            SurfaceMaker.StartNewSurface(
+                SurfaceEditControls.HeadRaycaster.ReferenceOrientationUp,
+                SurfaceEditControls.HeadRaycaster.ReferenceOrientationRight,
+                SurfaceEditControls.HeadRaycaster.LastKnownPoint,
+                SurfaceEditControls.HeadRaycaster.LastKnownNormal);
+        }
+        
         SurfaceMaker.AddPointToActiveSurface(
             SurfaceEditControls.RightRaycaster.LastKnownPoint,
             SurfaceEditControls.RightRaycaster.LastKnownNormal);
@@ -49,7 +57,6 @@ public class SurfacesEditor : MonoBehaviour
 
     public void HandleRightControllerMovedWhenDown()
     {
-        // Debug.Log($"SurfacesEditor.HandleRightControllerMovedWhenDown()");
         SurfaceMaker.AddPointToActiveSurface(
             SurfaceEditControls.RightRaycaster.LastKnownPoint,
             SurfaceEditControls.RightRaycaster.LastKnownNormal);
@@ -57,7 +64,10 @@ public class SurfacesEditor : MonoBehaviour
     
     public void HandleRightTriggerUp()
     {
-        Debug.Log($"SurfacesEditor.HandleRightTriggerUp()");
+    }
+
+    public void HandleRightSqueeze()
+    {
         SurfaceMaker.EndActiveSurface();
     }
 }

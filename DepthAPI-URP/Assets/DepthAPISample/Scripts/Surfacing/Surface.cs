@@ -68,6 +68,11 @@ public class Surface : MonoBehaviour
             }
         }
     }
+
+    public void RemovePointFromSurface(Vector3 point)
+    {
+        // TODO: find the point from its UVs and remove it if it exists
+    }
     
     public void End()
     {

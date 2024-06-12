@@ -13,6 +13,8 @@ public class SurfaceMaker : MonoBehaviour
     
     private Surface _activeSurface;
     private List<Surface> _Surfaces = new List<Surface>();
+
+    public Surface ActiveSurface => _activeSurface;
     
     // Start is called before the first frame update
     void Start()
@@ -62,6 +64,14 @@ public class SurfaceMaker : MonoBehaviour
         
         _activeSurface.AddPointToSurface(SurfacePointPrefab, point, normal);
     }
+
+    public void RemovePointFromActiveSurface(Vector3 point)
+    {
+        if (_activeSurface != null)
+        {
+            _activeSurface.RemovePointFromSurface(point);
+        }
+    }
     
     public void EndActiveSurface()
     {
@@ -73,6 +83,13 @@ public class SurfaceMaker : MonoBehaviour
 
     public void RemoveLastSurface()
     {
-        
+        if (_activeSurface != null)
+        {
+            // TODO: remove the active surface
+        }
+        else if (_Surfaces.Count > 0)
+        {
+            // TODO: remove the end of the surfaces list
+        }
     }
 }

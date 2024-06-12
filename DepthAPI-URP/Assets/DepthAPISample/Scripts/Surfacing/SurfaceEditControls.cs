@@ -20,14 +20,19 @@ public class SurfaceEditControls : MonoBehaviour
     public UnityEvent OnLeftStart;
     public UnityEvent OnLeftMovedWhenDown;
     public UnityEvent OnLeftFinish;
+    public UnityEvent OnLeftSqueeze;
 
     public UnityEvent OnRightStart;
     public UnityEvent OnRightMovedWhenDown;
     public UnityEvent OnRightFinish;
+    public UnityEvent OnRightSqueeze;
     
     private float _currLeftFlex = 0.0F;
-    private float _currRightFlex = 0.0F;
+    private float _currLeftSqueezeFlex = 0.0F;
 
+    private float _currRightFlex = 0.0F;
+    private float _currRightSqueezeFlex = 0.0F;
+    
     private bool _isLeftDown = false;
     private bool _isRightDown = false;
     
@@ -38,27 +43,50 @@ public class SurfaceEditControls : MonoBehaviour
         _isRightDown = false;
 
         _currLeftFlex = 0.0F;
+        _currLeftSqueezeFlex = 0.0F;
+        
         _currRightFlex = 0.0F;
+        _currRightSqueezeFlex = 0.0F;
         
         OnLeftStart.RemoveAllListeners();
+        OnLeftMovedWhenDown.RemoveAllListeners();
         OnLeftFinish.RemoveAllListeners();
+        OnLeftSqueeze.RemoveAllListeners();
         
         OnRightStart.RemoveAllListeners();
+        OnRightMovedWhenDown.RemoveAllListeners();
         OnRightFinish.RemoveAllListeners();
+        OnRightSqueeze.RemoveAllListeners();
     }
 
     // Update is called once per frame
     void Update()
     {
         var prevFlexLeft = _currLeftFlex;
+        var prevSqueezeFlexLeft = _currLeftSqueezeFlex;
+        
         var prevFlexRight = _currRightFlex;
-
+        var prevSqueezeFlexRight = _currRightSqueezeFlex;
+        
         _currLeftFlex = OVRInput.Get(OVRInput.Axis1D.PrimaryIndexTrigger, LeftController);
+        _currLeftSqueezeFlex = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, LeftController);
+
         _currRightFlex = OVRInput.Get(OVRInput.Axis1D.PrimaryIndexTrigger, RightController);
+        _currRightSqueezeFlex = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, RightController);
 
         CheckForGrabOrReleaseLeft(_currLeftFlex, prevFlexLeft);
         CheckForGrabOrReleaseRight(_currRightFlex, prevFlexRight);
 
+        if (CheckForLeftSqueeze(_currLeftSqueezeFlex, prevSqueezeFlexLeft))
+        {
+            OnLeftSqueeze.Invoke();
+        }
+
+        if (CheckForRightSqueeze(_currRightSqueezeFlex, prevSqueezeFlexRight))
+        {
+            OnRightSqueeze.Invoke();
+        }
+        
         if (_isLeftDown && DidLeftControllerMove())
         {
             OnLeftMovedWhenDown.Invoke();
@@ -81,6 +109,19 @@ public class SurfaceEditControls : MonoBehaviour
             HandleGrabEndLeft();
         }
     }
+
+    private bool CheckForLeftSqueeze(float currFlex, float prevFlex)
+    {
+        if ((currFlex >= grabBegin) && (prevFlex < grabBegin))
+        {
+            return true;
+        }
+        // else if ((currFlex <= grabEnd) && (prevFlex > grabEnd))
+        // {
+        //     HandleGrabEndLeft();
+        // }
+        return false;
+    }
     
     private void CheckForGrabOrReleaseRight(float currFlex, float prevFlex)
     {
@@ -92,6 +133,19 @@ public class SurfaceEditControls : MonoBehaviour
         {
             HandleGrabEndRight();
         }
+    }
+    
+    private bool CheckForRightSqueeze(float currFlex, float prevFlex)
+    {
+        if ((currFlex >= grabBegin) && (prevFlex < grabBegin))
+        {
+            return true;
+        }
+        // else if ((currFlex <= grabEnd) && (prevFlex > grabEnd))
+        // {
+        //     HandleGrabEndRight();
+        // }
+        return true;
     }
 
     private bool DidLeftControllerMove()
@@ -106,7 +160,7 @@ public class SurfaceEditControls : MonoBehaviour
     
     private void HandleGrabBeginLeft()
     {
-        if (_isRightDown || _isLeftDown)
+        if (_isLeftDown)
             return;
 
         _isLeftDown = true;
@@ -124,7 +178,7 @@ public class SurfaceEditControls : MonoBehaviour
 
     private void HandleGrabBeginRight()
     {
-        if (_isLeftDown || _isRightDown)
+        if (_isRightDown)
             return;
 
         _isRightDown = true;
