@@ -22,7 +22,7 @@ public class SurfacesEditor : MonoBehaviour
 
     public void HandleStartButtonPressed()
     {
-        SurfaceDataSender.SendTestData = true;
+        // SurfaceDataSender.SendTestData = true;
     }
     
     public void HandleLeftTriggerDown()

@@ -13,8 +13,18 @@ public class SurfaceDataListener : MonoBehaviour
     public String AddressOverride = "192.168.86.26";
     public int PortOverride = 60523;
 
+    public event Action<byte[]> SurfaceDataReceived;
+
+    // NOTE: this must be thread safe since it is populated by the listening thread
+    // and then invokes events from the main thread
+    private Queue<byte[]> queuedReceivedData = new Queue<byte[]>();
+    
     private bool isListeningForSurfaceData = false;
+    
     private static SurfaceDataListener instance = null;
+
+    // 1 MB temp buffer for reading data
+    private static byte[] tempBuffer = new byte[1024 * 1024];
     
     async void Listen()
     {
@@ -51,7 +61,7 @@ public class SurfaceDataListener : MonoBehaviour
                              " on port number " + ((IPEndPoint)server.LocalEndpoint).Port.ToString());
 
             // Buffer for reading data
-            Byte[] bytes = new Byte[256];
+            Byte[] bytes = tempBuffer;
             String data = null;
 
             Debug.LogWarning("LISTENER: Waiting for a connection... ");
@@ -75,19 +85,28 @@ public class SurfaceDataListener : MonoBehaviour
                 // Get a stream object for reading and writing
                 var stream = client.GetStream();
 
-                int i;
+                var bytesRead = 0;
 
                 // Loop to receive all the data sent by the client.
-                while((i = stream.Read(bytes, 0, bytes.Length))!=0)
+                while((bytesRead = stream.Read(bytes, 0, bytes.Length))!=0)
                 {
                     // Translate data bytes to a ASCII string.
-                    data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
-                    Debug.LogWarning($"LISTENER: Received: {data}");
+                    // data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+                    // Debug.LogWarning($"LISTENER: Received: {data}");
+                    
+                    var surfaceDataReceived = new byte[bytesRead];
+                    for (var index = 0; index < bytesRead; index++)
+                        surfaceDataReceived[index] = bytes[index];
 
+                    lock (queuedReceivedData)
+                    {
+                        queuedReceivedData.Enqueue(surfaceDataReceived);
+                    }
+                    
                     // Process the data sent by the client.
-                    data = data.ToUpper();
+                    data = "ACK";//data.ToUpper();
 
-                    byte[] msg = System.Text.Encoding.ASCII.GetBytes(data);
+                    var msg = System.Text.Encoding.ASCII.GetBytes(data);
 
                     // Send back a response.
                     stream.Write(msg, 0, msg.Length);
@@ -124,6 +143,12 @@ public class SurfaceDataListener : MonoBehaviour
         {
             isListeningForSurfaceData = true;
             Task.Run(Listen);
+        }
+        
+        lock(queuedReceivedData)
+        {
+            if (queuedReceivedData.Count > 0)
+                SurfaceDataReceived?.Invoke(queuedReceivedData.Dequeue());
         }
     }
 }

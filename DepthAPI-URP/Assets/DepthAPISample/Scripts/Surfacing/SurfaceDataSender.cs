@@ -27,6 +27,11 @@ public class SurfaceDataSender : MonoBehaviour
         }
     }
 
+    public void SendDataToListener(byte[] dataToSend)
+    {
+        
+    }
+    
     private void SendTestDataToListener()
     {
         try
