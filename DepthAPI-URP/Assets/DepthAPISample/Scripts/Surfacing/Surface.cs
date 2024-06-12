@@ -1,10 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using MIConvexHull;
 using UnityEngine;
 
 public class Surface : MonoBehaviour
 {
+    public struct Vertex : IVertex2D
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+    }
+    
     private List<SurfacePoint> _surfacePoints = new List<SurfacePoint>();
     
     public Vector3 SurfaceOrigin { get; private set; }
@@ -67,6 +74,8 @@ public class Surface : MonoBehaviour
                 var newSurfacePoint = newPoint.GetComponent<SurfacePoint>();
                 newSurfacePoint.point = position;
                 newSurfacePoint.normal = normal;
+                newSurfacePoint.U = u;
+                newSurfacePoint.V = v;
                 
                 AddPointForUVs(u, v, newSurfacePoint);
             }
@@ -100,22 +109,47 @@ public class Surface : MonoBehaviour
         if (_surfacePoints.Count == 0)
             return;
         
-        // var positions = new Vector3[_surfacePoints.Count + 1];
-        // var index = 0;
-        
         foreach (var surfacePoint in _surfacePoints)
         {
             surfacePoint.pointRenderer.enabled = false;
-            // positions[index] = surfacePoint.point;
-            // index++;
         }
 
-        // positions[index] = _surfacePoints[0].point;
-        //
-        // var lineRenderer = gameObject.GetComponent<LineRenderer>();
-        // lineRenderer.SetPositions(positions);
+        var lineRenderer = gameObject.GetComponent<LineRenderer>();
+        lineRenderer.SetPositions(GetBoundaryPoints());
     }
 
+    private Vector3[] GetBoundaryPoints()
+    {
+        if (_surfacePoints.Count == 0)
+            return null;
+
+        List<Vertex> vertices = new List<Vertex>();
+        
+        foreach (var surfacePoint in _surfacePoints)
+        {
+            var v = new Vertex { X = surfacePoint.U, Y = surfacePoint.V };
+            vertices.Add(v);
+        }
+            
+        // TODO: get 2d convex hull of all point UVs, and use convex hull's result
+        // UVs to convert back to points
+        
+        var result = ConvexHull.Create2D(vertices);
+
+        var surfaceBoundaryPts = new Vector3[result.Result.Count];
+        var index = 0;
+        
+        foreach (var hullPt in result.Result)
+        {
+            var u = (int)hullPt.X;
+            var v = (int)hullPt.Y;
+            var surfacePoint = GetSurfacePointForUVs(u, v);
+            surfaceBoundaryPts[index] = surfacePoint.point;
+        }
+
+        return surfaceBoundaryPts;
+    }
+    
     private bool CalculatePointUVs(Vector3 point, out int u, out int v, out float w)
     {
         u = 0;
@@ -138,6 +172,20 @@ public class Surface : MonoBehaviour
         return true;
     }
 
+    private SurfacePoint GetSurfacePointForUVs(int u, int v)
+    {
+        if (_pointsByUVs.ContainsKey(u))
+        {
+            if (_pointsByUVs[u].ContainsKey(v))
+            {
+                _pointsByUVs[u].TryGetValue(v, out var surfacePoint);
+                return surfacePoint;
+            }
+        }
+
+        return null;
+    }
+    
     private void CalculatePointForUVs(int u, int v, float w, out Vector3 point)
     {
         point = SurfaceOrigin + 
