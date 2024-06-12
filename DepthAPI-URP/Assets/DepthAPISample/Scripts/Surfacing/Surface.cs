@@ -56,6 +56,9 @@ public class Surface : MonoBehaviour
 
         SurfaceUp = Vector3.Cross(referenceOrientationRight, SurfaceNormal);
         SurfaceRight = Vector3.Cross(SurfaceNormal, SurfaceUp);
+
+        var lineRenderer = gameObject.GetComponent<LineRenderer>();
+        lineRenderer.enabled = false;
     }
 
     public void AddPointToSurface(GameObject prefab, Vector3 point, Vector3 normal)
@@ -114,8 +117,12 @@ public class Surface : MonoBehaviour
             surfacePoint.pointRenderer.enabled = false;
         }
 
+        var boundaryPoints = GetBoundaryPoints();
+        
         var lineRenderer = gameObject.GetComponent<LineRenderer>();
-        lineRenderer.SetPositions(GetBoundaryPoints());
+        lineRenderer.enabled = true;
+        lineRenderer.positionCount = boundaryPoints.Length;
+        lineRenderer.SetPositions(boundaryPoints);
     }
 
     private Vector3[] GetBoundaryPoints()
