@@ -14,6 +14,8 @@ public class Surface : MonoBehaviour
     private float SpaceBetweenPoints { get; set; }
 
     private Dictionary<int, Dictionary<int, SurfacePoint>> _pointsByUVs = new();
+    private List<Vector3> _bakedPoints = new List<Vector3>();
+    private List<Vector3> _bakedNormals = new List<Vector3>();
     
     // Start is called before the first frame update
     void Start()
@@ -36,6 +38,8 @@ public class Surface : MonoBehaviour
         
         _surfacePoints.Clear();
         _pointsByUVs.Clear();
+        _bakedPoints.Clear();
+        _bakedNormals.Clear();
         
         SurfaceOrigin = surfacePlaneOrigin;
         SurfaceNormal = surfacePlaneNormal;
@@ -77,6 +81,7 @@ public class Surface : MonoBehaviour
     public void End()
     {
         Debug.Log($"Surface.End()");
+        // TODO: add line renderer for convex hull of our points+normals, and remove point game objects
     }
 
     private bool CalculatePointUVs(Vector3 point, out int u, out int v, out float w)
