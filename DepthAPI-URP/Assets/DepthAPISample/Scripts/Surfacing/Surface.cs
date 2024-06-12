@@ -65,7 +65,7 @@ public class Surface : MonoBehaviour
         {
             if (!DoesPointExist(u, v))
             {
-                CalculatePointForUVs(u, v, w, out var position);
+                var position = CalculatePointForUVs(u, v, w);
                 
                 var rotation = Quaternion.LookRotation(normal);
                 var newPoint = Instantiate(prefab, this.transform);
@@ -143,11 +143,42 @@ public class Surface : MonoBehaviour
         {
             var u = (int)hullPt.X;
             var v = (int)hullPt.Y;
-            var surfacePoint = GetSurfacePointForUVs(u, v);
-            surfaceBoundaryPts[index] = surfacePoint.point;
+            Debug.Log($"PAINTING: Convex Hull point: {u}, {v}");
+            surfaceBoundaryPts[index] = CalculatePointForUVs(u, v, 0F);
         }
+        surfaceBoundaryPts[index] = CalculatePointForUVs((int)result.Result[0].X, (int)result.Result[0].Y, 0F);
 
+        Debug.Log($"PAINTING: Convex Hull points total: {surfaceBoundaryPts.Length}");
+
+        GetMinAndMaxUVValues(out var minU, out var maxU, out var minV, out var maxV);
+        Debug.Log($"PAINTING: UV rect: {CalculatePointForUVs(minU, minV, 0F)}, {CalculatePointForUVs(maxU, minV, 0F)}, {CalculatePointForUVs(maxU, maxV, 0F)}, {CalculatePointForUVs(minU, maxV, 0F)}");
+
+        // NOTE: code below will get the bounding rectangle 
+        // surfaceBoundaryPts = new Vector3[]
+        // {
+        //     CalculatePointForUVs(minU, minV, 0F),
+        //     CalculatePointForUVs(maxU, minV, 0F),
+        //     CalculatePointForUVs(maxU, maxV, 0F),
+        //     CalculatePointForUVs(minU, maxV, 0F),
+        //     CalculatePointForUVs(minU, minV, 0F),
+        // };
+        
         return surfaceBoundaryPts;
+    }
+
+    private void GetMinAndMaxUVValues(out int minU, out int maxU, out int minV, out int maxV)
+    {
+        minU = 1000000;
+        maxU = -1000000;
+        minV = 1000000;
+        maxV = -1000000;
+        foreach (var surfacePoint in _surfacePoints)
+        {
+            if (surfacePoint.U > maxU) maxU = surfacePoint.U;
+            if (surfacePoint.U < minU) minU = surfacePoint.U;
+            if (surfacePoint.V > maxV) maxV = surfacePoint.V;
+            if (surfacePoint.V < minV) minV = surfacePoint.V;
+        }
     }
     
     private bool CalculatePointUVs(Vector3 point, out int u, out int v, out float w)
@@ -186,12 +217,13 @@ public class Surface : MonoBehaviour
         return null;
     }
     
-    private void CalculatePointForUVs(int u, int v, float w, out Vector3 point)
+    private Vector3 CalculatePointForUVs(int u, int v, float w)
     {
-        point = SurfaceOrigin + 
+        var point = SurfaceOrigin + 
                 (u * SpaceBetweenPoints * SurfaceRight) + 
                 (v * SpaceBetweenPoints * SurfaceUp) +
                 (w * SurfaceNormal);
+        return point;
     }
 
     private bool DoesPointExist(int u, int v)
