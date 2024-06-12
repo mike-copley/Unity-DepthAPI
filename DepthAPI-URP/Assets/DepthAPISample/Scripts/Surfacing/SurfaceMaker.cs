@@ -76,9 +76,12 @@ public class SurfaceMaker : MonoBehaviour
     public void EndActiveSurface()
     {
         Debug.Log($"SurfaceMaker.EndActiveSurface()");
-        _Surfaces.Add(_activeSurface);
-        _activeSurface.End();
-        _activeSurface = null;
+        if (_activeSurface != null)
+        {
+            _Surfaces.Add(_activeSurface);
+            _activeSurface.End();
+            _activeSurface = null;
+        }
     }
 
     public void RemoveLastSurface()

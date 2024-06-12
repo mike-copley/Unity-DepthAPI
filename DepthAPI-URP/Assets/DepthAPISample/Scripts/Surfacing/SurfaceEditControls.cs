@@ -6,8 +6,8 @@ using UnityEngine.Events;
 public class SurfaceEditControls : MonoBehaviour
 {
     // Grip trigger thresholds for picking up objects, with some hysteresis.
-    public float grabBegin = 0.75F;
-    public float grabEnd = 0.25F;
+    public float grabBegin = 0.65F;
+    public float grabEnd = 0.35F;
     public float pointDistanceChangeMovementThresh = 0.01F;
 
     public OVRInput.Controller LeftController;
@@ -74,6 +74,8 @@ public class SurfaceEditControls : MonoBehaviour
         _currRightFlex = OVRInput.Get(OVRInput.Axis1D.PrimaryIndexTrigger, RightController);
         _currRightSqueezeFlex = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, RightController);
 
+        // Debug.Log($"PAINTING: crf: {_currRightFlex}, crs: {_currRightSqueezeFlex}");
+        
         CheckForGrabOrReleaseLeft(_currLeftFlex, prevFlexLeft);
         CheckForGrabOrReleaseRight(_currRightFlex, prevFlexRight);
 
@@ -84,6 +86,7 @@ public class SurfaceEditControls : MonoBehaviour
 
         if (CheckForRightSqueeze(_currRightSqueezeFlex, prevSqueezeFlexRight))
         {
+            Debug.Log($"PAINTING: calling OnRightSqueeze.Invoke()");
             OnRightSqueeze.Invoke();
         }
         
@@ -100,7 +103,7 @@ public class SurfaceEditControls : MonoBehaviour
 
     private void CheckForGrabOrReleaseLeft(float currFlex, float prevFlex)
     {
-        if ((currFlex >= grabBegin) && (prevFlex < grabBegin))
+        if ((currFlex >= grabBegin) && (prevFlex < grabEnd))
         {
             HandleGrabBeginLeft();
         }
@@ -112,7 +115,7 @@ public class SurfaceEditControls : MonoBehaviour
 
     private bool CheckForLeftSqueeze(float currFlex, float prevFlex)
     {
-        if ((currFlex >= grabBegin) && (prevFlex < grabBegin))
+        if ((currFlex >= grabBegin) && (prevFlex < grabEnd))
         {
             return true;
         }
@@ -125,7 +128,7 @@ public class SurfaceEditControls : MonoBehaviour
     
     private void CheckForGrabOrReleaseRight(float currFlex, float prevFlex)
     {
-        if ((currFlex >= grabBegin) && (prevFlex < grabBegin))
+        if ((currFlex >= grabBegin) && (prevFlex < grabEnd))
         {
             HandleGrabBeginRight();
         }
@@ -137,15 +140,16 @@ public class SurfaceEditControls : MonoBehaviour
     
     private bool CheckForRightSqueeze(float currFlex, float prevFlex)
     {
-        if ((currFlex >= grabBegin) && (prevFlex < grabBegin))
+        if ((currFlex >= grabBegin) && (prevFlex < grabEnd))
         {
+            Debug.Log($"PAINTING: CheckForRightSqueeze() ... cf: {currFlex}, pf: {prevFlex}");
             return true;
         }
         // else if ((currFlex <= grabEnd) && (prevFlex > grabEnd))
         // {
         //     HandleGrabEndRight();
         // }
-        return true;
+        return false;
     }
 
     private bool DidLeftControllerMove()

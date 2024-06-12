@@ -41,8 +41,10 @@ public class SurfacesEditor : MonoBehaviour
 
     public void HandleRightTriggerDown()
     {
+        Debug.Log($"PAINTING: HandleRightTriggerDown()");
         if (SurfaceMaker.ActiveSurface == null)
         {
+            Debug.Log($"PAINTING: ... StartNewSurface()");
             SurfaceMaker.StartNewSurface(
                 SurfaceEditControls.HeadRaycaster.ReferenceOrientationUp,
                 SurfaceEditControls.HeadRaycaster.ReferenceOrientationRight,
@@ -50,6 +52,7 @@ public class SurfacesEditor : MonoBehaviour
                 SurfaceEditControls.HeadRaycaster.LastKnownNormal);
         }
         
+        Debug.Log($"PAINTING: ... AddPointToActiveSurface()");
         SurfaceMaker.AddPointToActiveSurface(
             SurfaceEditControls.RightRaycaster.LastKnownPoint,
             SurfaceEditControls.RightRaycaster.LastKnownNormal);
@@ -57,6 +60,7 @@ public class SurfacesEditor : MonoBehaviour
 
     public void HandleRightControllerMovedWhenDown()
     {
+        Debug.Log($"PAINTING: HandleRightControllerMovedWhenDown()");
         SurfaceMaker.AddPointToActiveSurface(
             SurfaceEditControls.RightRaycaster.LastKnownPoint,
             SurfaceEditControls.RightRaycaster.LastKnownNormal);
@@ -64,10 +68,12 @@ public class SurfacesEditor : MonoBehaviour
     
     public void HandleRightTriggerUp()
     {
+        Debug.Log($"PAINTING: HandleRightTriggerUp()");
     }
 
     public void HandleRightSqueeze()
     {
+        Debug.Log($"PAINTING: HandleRightSqueeze()");
         SurfaceMaker.EndActiveSurface();
     }
 }

@@ -1704,6 +1704,21 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  OnLeftSqueeze:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1323284619}
+        m_TargetAssemblyTypeName: SurfacesEditor, Assembly-CSharp
+        m_MethodName: HandleLeftSqueeze
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   OnRightStart:
     m_PersistentCalls:
       m_Calls:
@@ -1740,6 +1755,21 @@ MonoBehaviour:
       - m_Target: {fileID: 1323284619}
         m_TargetAssemblyTypeName: SurfacesEditor, Assembly-CSharp
         m_MethodName: HandleRightTriggerUp
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnRightSqueeze:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1323284619}
+        m_TargetAssemblyTypeName: SurfacesEditor, Assembly-CSharp
+        m_MethodName: HandleRightSqueeze
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1859,7 +1889,6 @@ MonoBehaviour:
   SurfacesContainer: {fileID: 185368956}
   SurfacePointPrefab: {fileID: 4818305188428498892, guid: 9a369f60c45bc470e89dc62a04e821f5,
     type: 3}
-  SurfaceMeshPrefab: {fileID: 0}
   SpaceBetweenPoints: 0.03
   PointDistanceFromSurfacePlaneForAdd: 0.03
   NormalAngleFromSurfacePlaneForAdd: 15
