@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Surface : MonoBehaviour
@@ -63,7 +64,7 @@ public class Surface : MonoBehaviour
                 var newPoint = Instantiate(prefab, this.transform);
                 newPoint.transform.SetPositionAndRotation(position, rotation);
 
-                var newSurfacePoint = newPoint.AddComponent<SurfacePoint>();
+                var newSurfacePoint = newPoint.GetComponent<SurfacePoint>();
                 newSurfacePoint.point = position;
                 newSurfacePoint.normal = normal;
                 
@@ -94,6 +95,25 @@ public class Surface : MonoBehaviour
     {
         Debug.Log($"Surface.End()");
         // TODO: add line renderer for convex hull of our points+normals, and remove point game objects
+        // TODO: turn off the point mesh renderers, but keep the normal renderers on
+
+        if (_surfacePoints.Count == 0)
+            return;
+        
+        // var positions = new Vector3[_surfacePoints.Count + 1];
+        // var index = 0;
+        
+        foreach (var surfacePoint in _surfacePoints)
+        {
+            surfacePoint.pointRenderer.enabled = false;
+            // positions[index] = surfacePoint.point;
+            // index++;
+        }
+
+        // positions[index] = _surfacePoints[0].point;
+        //
+        // var lineRenderer = gameObject.GetComponent<LineRenderer>();
+        // lineRenderer.SetPositions(positions);
     }
 
     private bool CalculatePointUVs(Vector3 point, out int u, out int v, out float w)

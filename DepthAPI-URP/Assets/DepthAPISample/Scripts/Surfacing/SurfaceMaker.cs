@@ -5,6 +5,7 @@ using UnityEngine;
 public class SurfaceMaker : MonoBehaviour
 {
     public GameObject SurfacesContainer;
+    public GameObject SurfacePrefab;
     public GameObject SurfacePointPrefab;
 
     public float SpaceBetweenPoints = 0.02F;
@@ -33,8 +34,8 @@ public class SurfaceMaker : MonoBehaviour
         Vector3 surfacePlaneOrigin, Vector3 surfacePlaneNormal)
     {
         Debug.Log($"SurfaceMaker.StartNewSurface({surfacePlaneOrigin}, {surfacePlaneNormal})");
-        var newSurfaceObject = new GameObject("Surface");
-        var newSurface = newSurfaceObject.AddComponent<Surface>();
+        var newSurfaceObject = Instantiate(SurfacePrefab);
+        var newSurface = newSurfaceObject.GetComponent<Surface>();
         _activeSurface = newSurface;
         _activeSurface.transform.parent = SurfacesContainer.transform;
         _activeSurface.Begin(

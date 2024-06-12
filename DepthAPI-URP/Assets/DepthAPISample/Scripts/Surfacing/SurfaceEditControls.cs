@@ -75,7 +75,7 @@ public class SurfaceEditControls : MonoBehaviour
         _currRightSqueezeFlex = OVRInput.Get(OVRInput.Axis1D.PrimaryHandTrigger, RightController);
 
         // Debug.Log($"PAINTING: crf: {_currRightFlex}, crs: {_currRightSqueezeFlex}");
-        Debug.Log($"PAINTING: clf: {_currLeftFlex}, cls: {_currLeftSqueezeFlex}");
+        // Debug.Log($"PAINTING: clf: {_currLeftFlex}, cls: {_currLeftSqueezeFlex}");
         
         CheckForGrabOrReleaseLeft(_currLeftFlex, prevFlexLeft);
         CheckForGrabOrReleaseRight(_currRightFlex, prevFlexRight);
@@ -91,11 +91,11 @@ public class SurfaceEditControls : MonoBehaviour
             OnRightSqueeze.Invoke();
         }
         
-        Debug.Log($"PAINTING: ... is left down: {_isLeftDown}");
+        // Debug.Log($"PAINTING: ... is left down: {_isLeftDown}");
         if (_isLeftDown && DidLeftControllerMove())
         {
-            Debug.Log($"PAINTING: ... is left controller did move.");
-            Debug.Log($"PAINTING: ... calling OnLeftMovedWhenDown.Invoke()");
+            // Debug.Log($"PAINTING: ... is left controller did move.");
+            // Debug.Log($"PAINTING: ... calling OnLeftMovedWhenDown.Invoke()");
             OnLeftMovedWhenDown.Invoke();
         }
 

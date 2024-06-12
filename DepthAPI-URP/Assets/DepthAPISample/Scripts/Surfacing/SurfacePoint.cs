@@ -6,6 +6,9 @@ public class SurfacePoint : MonoBehaviour
 {
     public Vector3 point;
     public Vector3 normal;
+
+    public MeshRenderer pointRenderer;
+    public MeshRenderer normalRenderer;
     
     // Start is called before the first frame update
     void Start()
