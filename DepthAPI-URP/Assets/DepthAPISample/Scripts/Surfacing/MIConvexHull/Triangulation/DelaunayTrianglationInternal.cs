@@ -51,7 +51,7 @@ namespace MIConvexHull
             where TCell : TriangulationCell<TVertex, TCell>, new()
             where TVertex : IVertex
         {
-            var ch = new ConvexHullAlgorithm(data.Cast<IVertex>().ToArray(), true, PlaneDistanceTolerance);
+            var ch = new ConvexHullAlgorithm(data.Cast<IVertex>().ToArray(), false, PlaneDistanceTolerance);
             ch.GetConvexHull();
             ch.RemoveUpperFaces();
             return ch.GetConvexFaces<TVertex, TCell>();
