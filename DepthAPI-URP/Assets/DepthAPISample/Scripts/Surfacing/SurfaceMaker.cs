@@ -67,8 +67,10 @@ public class SurfaceMaker : MonoBehaviour
 
     public void RemovePointFromActiveSurface(Vector3 point)
     {
+        Debug.Log($"PAINTING: SurfaceMaker.RemovePointFromActiveSurface()");
         if (_activeSurface != null)
         {
+            Debug.Log($"PAINTING: ... calling Surface.RemovePointFromSurface()");
             _activeSurface.RemovePointFromSurface(point);
         }
     }

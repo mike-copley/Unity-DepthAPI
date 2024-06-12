@@ -52,8 +52,7 @@ public class Surface : MonoBehaviour
 
     public void AddPointToSurface(GameObject prefab, Vector3 point, Vector3 normal)
     {
-        Debug.Log($"Surface.AddPointToSurface({prefab.name}, {point}, {normal})");
-        // if (_surfacePoints.Count == 0)
+        // Debug.Log($"Surface.AddPointToSurface({prefab.name}, {point}, {normal})");
         if (CalculatePointUVs(point, out var u, out var v, out var w))
         {
             if (!DoesPointExist(u, v))
@@ -75,7 +74,20 @@ public class Surface : MonoBehaviour
 
     public void RemovePointFromSurface(Vector3 point)
     {
-        // TODO: find the point from its UVs and remove it if it exists
+        Debug.Log($"PAINTING: Surface.RemovePointFromSurface()");
+        if (CalculatePointUVs(point, out var u, out var v, out var w))
+        {
+            Debug.Log($"PAINTING: ... we have UVs for the point: {u}, {v}");
+            if (DoesPointExist(u, v))
+            {
+                Debug.Log($"PAINTING: ... point does exist for UVs.");
+                _pointsByUVs[u].TryGetValue(v, out var surfacePoint);
+                _pointsByUVs[u].Remove(v);
+                _surfacePoints.Remove(surfacePoint);
+                Debug.Log($"PAINTING: ... destroying surface point.");
+                Destroy(surfacePoint.gameObject);
+            }
+        }
     }
     
     public void End()

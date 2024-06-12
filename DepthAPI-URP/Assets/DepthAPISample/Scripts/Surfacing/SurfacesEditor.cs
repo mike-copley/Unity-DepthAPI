@@ -25,6 +25,7 @@ public class SurfacesEditor : MonoBehaviour
 
     public void HandleLeftControlledMovedWhenDown()
     {
+        Debug.Log($"PAINTING: SurfacesEditor.HandleLeftControlledMovedWhenDown()");
         SurfaceMaker.RemovePointFromActiveSurface(
             SurfaceEditControls.LeftRaycaster.LastKnownPoint);
     }
