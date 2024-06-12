@@ -136,16 +136,18 @@ public class Surface : MonoBehaviour
         
         var result = ConvexHull.Create2D(vertices);
 
-        var surfaceBoundaryPts = new Vector3[result.Result.Count];
+        var surfaceBoundaryPts = new Vector3[result.Result.Count + 1];
         var index = 0;
         
         foreach (var hullPt in result.Result)
         {
             var u = (int)hullPt.X;
             var v = (int)hullPt.Y;
-            Debug.Log($"PAINTING: Convex Hull point: {u}, {v}");
+            Debug.Log($"PAINTING: Convex Hull point {index}: {u}, {v}");
             surfaceBoundaryPts[index] = CalculatePointForUVs(u, v, 0F);
+            index++;
         }
+        Debug.Log($"PAINTING: Convex Hull point {index}: {(int)result.Result[0].X}, {(int)result.Result[0].Y}");
         surfaceBoundaryPts[index] = CalculatePointForUVs((int)result.Result[0].X, (int)result.Result[0].Y, 0F);
 
         Debug.Log($"PAINTING: Convex Hull points total: {surfaceBoundaryPts.Length}");
