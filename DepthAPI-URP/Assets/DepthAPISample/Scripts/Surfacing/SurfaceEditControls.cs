@@ -26,6 +26,8 @@ public class SurfaceEditControls : MonoBehaviour
     public UnityEvent OnRightMovedWhenDown;
     public UnityEvent OnRightFinish;
     public UnityEvent OnRightSqueeze;
+
+    public UnityEvent StartButtonPressed;
     
     private float _currLeftFlex = 0.0F;
     private float _currLeftSqueezeFlex = 0.0F;
@@ -62,6 +64,11 @@ public class SurfaceEditControls : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (OVRInput.GetDown(OVRInput.RawButton.Start))
+        {
+            StartButtonPressed.Invoke();
+        }
+        
         var prevFlexLeft = _currLeftFlex;
         var prevSqueezeFlexLeft = _currLeftSqueezeFlex;
         

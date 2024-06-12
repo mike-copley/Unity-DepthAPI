@@ -6,6 +6,7 @@ public class SurfacesEditor : MonoBehaviour
 {
     public SurfaceMaker SurfaceMaker;
     public SurfaceEditControls SurfaceEditControls;
+    public SurfaceDataSender SurfaceDataSender;
     
     // Start is called before the first frame update
     void Start()
@@ -19,6 +20,11 @@ public class SurfacesEditor : MonoBehaviour
         
     }
 
+    public void HandleStartButtonPressed()
+    {
+        SurfaceDataSender.SendTestData = true;
+    }
+    
     public void HandleLeftTriggerDown()
     {
     }
