@@ -422,7 +422,6 @@ MonoBehaviour:
   ListenerAddress: 192.168.86.26
   ListenerPort: 60523
   SendTestData: 0
-  TestDataToSend: Mary has a little lamb.
 --- !u!1 &364193346
 GameObject:
   m_ObjectHideFlags: 0
@@ -1720,6 +1719,10 @@ MonoBehaviour:
   ListenForSurfaceData: 0
   AddressOverride: 192.168.86.26
   PortOverride: 60523
+  SurfaceDataReceived:
+    m_PersistentCalls:
+      m_Calls: []
+  SurfaceAssetCreator: {fileID: 0}
 --- !u!1 &1731981409
 GameObject:
   m_ObjectHideFlags: 0
@@ -2004,9 +2007,9 @@ MonoBehaviour:
     type: 3}
   SurfacePointPrefab: {fileID: 4818305188428498892, guid: 9a369f60c45bc470e89dc62a04e821f5,
     type: 3}
-  SpaceBetweenPoints: 0.02
-  PointDistanceFromSurfacePlaneForAdd: 0.03
-  NormalAngleFromSurfacePlaneForAdd: 15
+  SpaceBetweenPoints: 0.04
+  PointDistanceFromSurfacePlaneForAdd: 0.05
+  NormalAngleFromSurfacePlaneForAdd: 30
 --- !u!4 &2034223048
 Transform:
   m_ObjectHideFlags: 0
