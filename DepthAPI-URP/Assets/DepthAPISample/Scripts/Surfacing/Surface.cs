@@ -11,7 +11,7 @@ public class Surface : MonoBehaviour
     {
         public class SurfaceData
         {
-            public struct SurfaceVertexData
+            public class SurfaceVertexData
             {
                 public int u;
                 public int v;
@@ -34,15 +34,15 @@ public class Surface : MonoBehaviour
             using var ms = new MemoryStream();
             using (var bw = new BinaryWriter(ms))
             {
-                Debug.Log($"Writing num s = {surfacesData.surfaces.Count()}");
+                // Debug.Log($"Writing num s = {surfacesData.surfaces.Count()}");
                 bw.Write(surfacesData.surfaces.Count());
                 foreach (var surfaceData in surfacesData.surfaces)
                 {
                     bw.Write(surfaceData.vertices.Count());
-                    Debug.Log($"Writing num v = {surfaceData.vertices.Count}");
+                    // Debug.Log($"Writing num v = {surfaceData.vertices.Count}");
                     foreach (var vertexData in surfaceData.vertices)
                     {
-                        Debug.Log($"Writing p, n = [{vertexData.px},{vertexData.py},{vertexData.pz}], [{vertexData.nx},{vertexData.ny},{vertexData.nz}]");
+                        // Debug.Log($"Writing p, n = [{vertexData.px},{vertexData.py},{vertexData.pz}], [{vertexData.nx},{vertexData.ny},{vertexData.nz}]");
                         bw.Write(vertexData.u);
                         bw.Write(vertexData.v);
                         bw.Write(vertexData.px);
@@ -66,13 +66,13 @@ public class Surface : MonoBehaviour
             using (var br = new BinaryReader(ms))
             {
                 var numSurfaces = br.ReadInt32();
-                Debug.Log($"Reading num s = {numSurfaces}");
+                // Debug.Log($"Reading num s = {numSurfaces}");
                 surfacesData.surfaces = new List<SurfaceData>();
                 for (var surfIndex = 0; surfIndex < numSurfaces; surfIndex++)
                 {
                     var surfData = new SurfaceData();
                     var numVertices = br.ReadInt32();
-                    Debug.Log($"Reading num v = {numVertices}");
+                    // Debug.Log($"Reading num v = {numVertices}");
                     surfData.vertices = new List<SurfaceData.SurfaceVertexData>();
                     for (var vertIndex = 0; vertIndex < numVertices; vertIndex++)
                     {
@@ -85,7 +85,7 @@ public class Surface : MonoBehaviour
                         vertData.nx = br.ReadSingle();
                         vertData.ny = br.ReadSingle();
                         vertData.nz = br.ReadSingle();
-                        Debug.Log($"Reading p, n = [{vertData.px},{vertData.py},{vertData.pz}], [{vertData.nx},{vertData.ny},{vertData.nz}]");
+                        // Debug.Log($"Reading p, n = [{vertData.px},{vertData.py},{vertData.pz}], [{vertData.nx},{vertData.ny},{vertData.nz}]");
                         surfData.vertices.Add(vertData);
                     }
                     surfacesData.surfaces.Add(surfData);
@@ -95,27 +95,29 @@ public class Surface : MonoBehaviour
             return surfacesData;
         }
 
-        public static SurfacesSerializedData CreateFromMesh(Vector3[] points, Vector3[] normals, int[] Us, int[] Vs)
+        public static SurfacesSerializedData CreateFromMesh(int numSurfaces, Vector3[] points, Vector3[] normals, int[] Us, int[] Vs)
         {
             var surfacesData = new SurfacesSerializedData();
             surfacesData.surfaces = new List<SurfaceData>();
+            var pindex = 0;
+            var pointsPerSurface = points.Length / numSurfaces;
+            for (var sindex = 0; sindex < numSurfaces; sindex++)
             {
                 var surfaceData = new SurfaceData();
                 surfaceData.vertices = new List<SurfaceData.SurfaceVertexData>();
-                var pindex = 0;
-                foreach (var point in points)
+                for (var index = 0; index < pointsPerSurface; index++)
                 {
                     var vertexData = new SurfaceData.SurfaceVertexData();
-                    Debug.Log($"CreateFromMesh() source p = {point}, n = {normals[pindex]}");
+                    // Debug.Log($"CreateFromMesh() source p = {points[pindex]}, n = {normals[pindex]}");
                     vertexData.u = Us[pindex];
                     vertexData.v = Vs[pindex];
-                    vertexData.px = point.x;
-                    vertexData.py = point.y;
-                    vertexData.pz = point.z;
+                    vertexData.px = points[pindex].x;
+                    vertexData.py = points[pindex].y;
+                    vertexData.pz = points[pindex].z;
                     vertexData.nx = normals[pindex].x;
                     vertexData.ny = normals[pindex].y;
                     vertexData.nz = normals[pindex].z;
-                    Debug.Log($"CreateFromMesh() vertex p = [{vertexData.px},{vertexData.py},{vertexData.pz}], n = [{vertexData.nx},{vertexData.ny},{vertexData.nz}]");
+                    // Debug.Log($"CreateFromMesh() vertex p = [{vertexData.px},{vertexData.py},{vertexData.pz}], n = [{vertexData.nx},{vertexData.ny},{vertexData.nz}]");
                     surfaceData.vertices.Add(vertexData);
                     pindex++;
                 }

@@ -47,12 +47,88 @@ public class SurfaceAssetCreator : MonoBehaviour
         // surface data that is provided, and then triangulated
         // var points = meshFilter.mesh.vertices;
         // var normals = meshFilter.mesh.normals;
+
+        List<Mesh> meshes = new List<Mesh>();
+
+        var surfacesBase = CalculateSurfacesBottomCenter(surfacesData);
+        OffsetSurfacesBy(surfacesData, surfacesBase);
         
-        var triangulatedMesh = Triangulate(surfacesData.surfaces[0].vertices);
-        meshFilter.mesh = triangulatedMesh;
-        meshFilter.sharedMesh = triangulatedMesh;
+        foreach (var surface in surfacesData.surfaces)
+        {
+            var triangulatedMesh = Triangulate(surface.vertices);
+            meshes.Add(triangulatedMesh);
+        }
+
+        var combinedMesh = CombineMeshes(meshes);
+        
+        meshFilter.mesh = combinedMesh;
+        meshFilter.sharedMesh = combinedMesh;
     }
 
+    private Vector3 CalculateSurfacesBottomCenter(Surface.SurfacesSerializedData surfacesData)
+    {
+        var cx = 0F;
+        var cy = 1000000F;
+        var cz = 0F;
+        var count = 0;
+        
+        foreach (var surface in surfacesData.surfaces)
+        {
+            foreach (var vertex in surface.vertices)
+            {
+                cx += vertex.px;
+                cy = cy > vertex.py ? vertex.py : cy;
+                cz += vertex.pz;
+                count++;
+            }
+        }
+
+        cx /= (count > 0 ? count : 1);
+        cz /= (count > 0 ? count : 1);
+        
+        return new Vector3(cx, cy, cz);
+    }
+
+    private void OffsetSurfacesBy(Surface.SurfacesSerializedData surfacesData, Vector3 offset)
+    {
+        foreach (var surface in surfacesData.surfaces)
+        {
+            foreach (var vertex in surface.vertices)
+            {
+                vertex.px -= offset.x;
+                vertex.py -= offset.y;
+                vertex.pz -= offset.z;
+            }
+        }
+    }
+    
+    private Mesh CombineMeshes(List<Mesh> meshes)
+    {
+        var meshVertices = new List<Vector3>();
+        var meshNormals = new List<Vector3>();
+        var meshIndices = new List<int>();
+
+        foreach (var mesh in meshes)
+        {
+            var vertices = mesh.vertices;
+            var normals = mesh.normals;
+
+            for (var index = 0; index < vertices.Length; index++)
+            {
+                // Debug.Log($"final pt: {vertices[index]}");
+                meshVertices.Add(vertices[index]);
+                meshNormals.Add(normals[index]);
+                // Debug.Log($"final id: {meshIndices.Count}");
+                meshIndices.Add(meshIndices.Count);
+            }
+        }
+        
+        var newMesh = new Mesh { vertices = meshVertices.ToArray(), normals = meshNormals.ToArray() };
+        newMesh.SetIndices(meshIndices.ToArray(), MeshTopology.Triangles, 0);
+
+        return newMesh;
+    }
+    
     private Mesh Triangulate(List<Surface.SurfacesSerializedData.SurfaceData.SurfaceVertexData> surfaceVertices)
     {
         List<Vector3> meshVertices = new List<Vector3>();
@@ -62,13 +138,13 @@ public class SurfaceAssetCreator : MonoBehaviour
         var delpointsList = new List<DelPoint>();
         var index = 0;
         
-        Debug.LogWarning($"TRIANGULATION: input ... num vertices = {surfaceVertices.Count()}");
+        // Debug.LogWarning($"TRIANGULATION: input ... num vertices = {surfaceVertices.Count()}");
         foreach (var vertex in surfaceVertices)
         {
-            Debug.LogWarning($"TRIANGULATION: ... source point = [{vertex.px},{vertex.py},{vertex.pz}]");
-            Debug.LogWarning($"TRIANGULATION: ... source normal = [{vertex.nx},{vertex.ny},{vertex.nz}]");
+            // Debug.LogWarning($"TRIANGULATION: ... source point = [{vertex.px},{vertex.py},{vertex.pz}]");
+            // Debug.LogWarning($"TRIANGULATION: ... source normal = [{vertex.nx},{vertex.ny},{vertex.nz}]");
             delpointsList.Add(GetDelPointFromPointAndNormal(vertex.u, vertex.v, vertex.px, vertex.py, vertex.pz, vertex.nx, vertex.ny, vertex.nz));
-            Debug.LogWarning($"TRIANGULATION: ... vertex = [{DelPointToString(delpointsList[index])}]");
+            // Debug.LogWarning($"TRIANGULATION: ... vertex = [{DelPointToString(delpointsList[index])}]");
             index++;
         }
         
@@ -82,7 +158,7 @@ public class SurfaceAssetCreator : MonoBehaviour
         }
         
         var delaunator = new Delaunator(delpoints);
-        Debug.LogWarning($"TRIANGULATION: output triangle count ... {delaunator.GetTriangles().Count()}");
+        // Debug.LogWarning($"TRIANGULATION: output triangle count ... {delaunator.GetTriangles().Count()}");
         
         foreach (var triangle in delaunator.GetTriangles())
         {
@@ -98,19 +174,19 @@ public class SurfaceAssetCreator : MonoBehaviour
             var dp1 = vertices[1] as DelPoint;
             var dp2 = vertices[2] as DelPoint;
             
-            Debug.LogWarning($"TRIANGULATION: ... vertex = {DelPointToString(dp0)}");
+            // Debug.LogWarning($"TRIANGULATION: ... vertex = {DelPointToString(dp0)}");
             GetPointAndNormalFromDelPoint(dp0, out var point0, out var normal0);
             meshVertices.Add(point0);
             meshNormals.Add(normal0);
             meshIndices.Add(meshIndices.Count);
             
-            Debug.LogWarning($"TRIANGULATION: ... vertex = {DelPointToString(dp1)}");
+            // Debug.LogWarning($"TRIANGULATION: ... vertex = {DelPointToString(dp1)}");
             GetPointAndNormalFromDelPoint(dp1, out var point1, out var normal1);
             meshVertices.Add(point1);
             meshNormals.Add(normal1);
             meshIndices.Add(meshIndices.Count);
             
-            Debug.LogWarning($"TRIANGULATION: ... vertex = {DelPointToString(dp2)}");
+            // Debug.LogWarning($"TRIANGULATION: ... vertex = {DelPointToString(dp2)}");
             GetPointAndNormalFromDelPoint(dp2, out var point2, out var normal2);
             meshVertices.Add(point2);
             meshNormals.Add(normal2);
@@ -159,7 +235,6 @@ public class SurfaceAssetCreator : MonoBehaviour
 
         var newMesh = new Mesh { vertices = meshVertices.ToArray(), normals = meshNormals.ToArray() };
         newMesh.SetIndices(meshIndices.ToArray(), MeshTopology.Triangles, 0);
-        
         return newMesh;
     }
 

@@ -64,32 +64,35 @@ public class SurfaceDataSender : MonoBehaviour
         // Translate the passed message into ASCII and store it as a Byte array.
         // var data = System.Text.Encoding.ASCII.GetBytes(TestDataToSend);
         var testSurfacesData = Surface.SurfacesSerializedData.CreateFromMesh(
+            4,
             new Vector3[]
             {
-                new Vector3(-1F, 0F, -1F),
-                new Vector3(0F, 0F, -1F),
-                new Vector3(1F, 0F, -1F),
-                new Vector3(-1F, 0F, 0F),
-                new Vector3(0F, 0F, 0F),
-                new Vector3(1F, 0F, 0F),
-                new Vector3(-1F, 0F, 1F),
-                new Vector3(0F, 0F, 1F),
-                new Vector3(1F, 0F, 1F),
+                new Vector3(-1F, 0F, -1F), new Vector3(0F, 0F, -1F), new Vector3(0F, 0F, 0F), new Vector3(-1F, 0F, 0F),
+                new Vector3(0F, 0F, -1F), new Vector3(1F, 0F, -1F), new Vector3(1F, 0F, 0F), new Vector3(0F, 0F, 0F),
+                new Vector3(-1F, 0F, 0F), new Vector3(0F, 0F, 0F), new Vector3(0F, 0F, 1F), new Vector3(-1F, 0F, 1F),
+                new Vector3(0F, 0F, 0F), new Vector3(1F, 0F, 0F), new Vector3(1F, 0F, 1F), new Vector3(0F, 0F, 1F),
             },
             new Vector3[]
             {
-                Vector3.up,
-                Vector3.up,
-                Vector3.up,
-                Vector3.up,
-                Vector3.up,
-                Vector3.up,
-                Vector3.up,
-                Vector3.up,
-                Vector3.up,
+                Vector3.up, Vector3.up, Vector3.up, Vector3.up, Vector3.up,
+                Vector3.up, Vector3.up, Vector3.up, Vector3.up, Vector3.up,
+                Vector3.up, Vector3.up, Vector3.up, Vector3.up, Vector3.up,
+                Vector3.up, Vector3.up, Vector3.up, Vector3.up, Vector3.up,
             },
-            new int[] { -1, 0, 1, -1, 0, 1, -1, 0, 1},
-            new int[] { -1, -1, -1, 0, 0, 0, 1, 1, 1}
+            new int[]
+            {
+                -1, 0, 0, -1, 
+                0, 1, 1, 0, 
+                -1, 0, 0, -1, 
+                0, 1, 1, 0,
+            },
+            new int[]
+            {
+                -1, -1, 0, 0, 
+                -1, -1, 0, 0, 
+                0, 0, 1, 1, 
+                0, 0, 1, 1,
+            }
         );
         var testSerializedData = Surface.SurfacesSerializedData.Serialize(testSurfacesData);
         SendDataToListener(testSerializedData);
