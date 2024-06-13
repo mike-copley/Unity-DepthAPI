@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using UnityEngine;
 
+#if UNITY_EDITOR
+[ExecuteInEditMode]
+#endif
 public class SurfaceDataSender : MonoBehaviour
 {
     public string ListenerAddress = "192.168.86.26";

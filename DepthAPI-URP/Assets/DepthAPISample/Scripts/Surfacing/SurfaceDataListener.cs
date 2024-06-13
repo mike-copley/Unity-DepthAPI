@@ -5,15 +5,23 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Oculus.Interaction;
+using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 
+#if UNITY_EDITOR
+[ExecuteInEditMode]
+#endif
 public class SurfaceDataListener : MonoBehaviour
 {
     public bool ListenForSurfaceData = false;
     public String AddressOverride = "192.168.86.26";
     public int PortOverride = 60523;
 
-    public event Action<byte[]> SurfaceDataReceived;
+    public UnityEvent SurfaceDataReceived;
+    public SurfaceAssetCreator SurfaceAssetCreator;
+    
+    public byte[] SurfaceDataReceivedEventData { get; private set; }
 
     // NOTE: this must be thread safe since it is populated by the listening thread
     // and then invokes events from the main thread
@@ -65,9 +73,13 @@ public class SurfaceDataListener : MonoBehaviour
             String data = null;
 
             Debug.LogWarning("LISTENER: Waiting for a connection... ");
-
+            
             // Enter the listening loop.
-            while (ListenForSurfaceData && instance != null)
+            while (ListenForSurfaceData 
+                   // NOTE: this is needed if using this in "Play mode" to handle
+                   // terminating the listen when the instance is destroyed
+                   // && instance != null
+                   )
             {
                 if (!server.Pending())
                 {
@@ -148,7 +160,11 @@ public class SurfaceDataListener : MonoBehaviour
         lock(queuedReceivedData)
         {
             if (queuedReceivedData.Count > 0)
-                SurfaceDataReceived?.Invoke(queuedReceivedData.Dequeue());
+            {
+                SurfaceDataReceivedEventData = queuedReceivedData.Dequeue();
+                // SurfaceDataReceived.Invoke();
+                SurfaceAssetCreator.HandleSurfaceDataReceived();
+            }
         }
     }
 }

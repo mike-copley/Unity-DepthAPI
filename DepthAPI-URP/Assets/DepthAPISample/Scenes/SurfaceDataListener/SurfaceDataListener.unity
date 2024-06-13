@@ -216,6 +216,22 @@ MonoBehaviour:
   ListenForSurfaceData: 0
   AddressOverride: 192.168.86.26
   PortOverride: 60523
+  SurfaceDataReceived:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 554501768}
+        m_TargetAssemblyTypeName: SurfaceAssetCreator, Assembly-CSharp
+        m_MethodName: HandleSurfaceDataReceived
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  SurfaceAssetCreator: {fileID: 554501768}
 --- !u!1 &635046203
 GameObject:
   m_ObjectHideFlags: 0

@@ -2,8 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MIConvexHull;
+using UnityEditor;
 using UnityEngine;
 
+#if UNITY_EDITOR
+[ExecuteInEditMode]
+#endif
 public class SurfaceAssetCreator : MonoBehaviour
 {
     public struct Vertex : IVertex
@@ -18,7 +22,6 @@ public class SurfaceAssetCreator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        SurfaceDataListener.SurfaceDataReceived += HandleSurfaceDataReceived;
     }
 
     // Update is called once per frame
@@ -27,9 +30,15 @@ public class SurfaceAssetCreator : MonoBehaviour
         
     }
 
-    private void HandleSurfaceDataReceived(byte[] surfaceData)
+    public void HandleSurfaceDataReceived()
     {
-        var createdGameObject = Instantiate(SurfaceAsset);
+        var surfaceData = SurfaceDataListener.SurfaceDataReceivedEventData;
+        var createdGameObject = Instantiate(SurfaceAsset, Vector3.zero, Quaternion.identity);
+        
+        // #if UNITY_EDITOR
+        // PrefabUtility.UnpackPrefabInstance(createdGameObject, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
+        // #endif
+        
         var meshFilter = createdGameObject.GetComponent<MeshFilter>();
 
         // TODO: replace the mesh in the instantiated asset with the
@@ -39,6 +48,7 @@ public class SurfaceAssetCreator : MonoBehaviour
         
         var triangulatedMesh = Triangulate(points, normals);
         meshFilter.mesh = triangulatedMesh;
+        meshFilter.sharedMesh = triangulatedMesh;
     }
 
     private Mesh Triangulate(Vector3[] points, Vector3[] normals)
