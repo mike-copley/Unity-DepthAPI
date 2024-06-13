@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DelaunatorSharp;
 using MIConvexHull;
 using UnityEditor;
 using UnityEngine;
@@ -10,10 +11,20 @@ using UnityEngine;
 #endif
 public class SurfaceAssetCreator : MonoBehaviour
 {
-    public struct Vertex : IVertex
+    // public class Vertex : IVertex
+    // {
+    //     public double[] Position { get; set; }
+    //     public float[] Normal { get; set; }
+    // }
+    
+    public class DelPoint : IPoint
     {
-        public double[] Position { get; set; }
-        public float[] Normal { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
+        
+        public Vector3 Point { get; set; }
+        public Vector3 Normal { get; set; }
+        public int Index { get; set; }
     }
     
     public GameObject SurfaceAsset;
@@ -44,7 +55,11 @@ public class SurfaceAssetCreator : MonoBehaviour
 
     private Mesh Triangulate(List<Surface.SurfacesSerializedData.SurfaceData.SurfaceVertexData> surfaceVertices)
     {
-        List<Vertex> vertices = new List<Vertex>();
+        List<Vector3> meshVertices = new List<Vector3>();
+        List<Vector3> meshNormals = new List<Vector3>();
+        List<int> meshIndices = new List<int>();
+
+        var delpointsList = new List<DelPoint>();
         var index = 0;
         
         Debug.LogWarning($"TRIANGULATION: input ... num vertices = {surfaceVertices.Count()}");
@@ -52,42 +67,95 @@ public class SurfaceAssetCreator : MonoBehaviour
         {
             Debug.LogWarning($"TRIANGULATION: ... source point = [{vertex.px},{vertex.py},{vertex.pz}]");
             Debug.LogWarning($"TRIANGULATION: ... source normal = [{vertex.nx},{vertex.ny},{vertex.nz}]");
-            vertices.Add(GetVertexFromPointAndNormal(vertex.px, vertex.py, vertex.pz, vertex.nx, vertex.ny, vertex.nz));
-            Debug.LogWarning($"TRIANGULATION: ... vertex p = [{vertices[index].Position[0]},{vertices[index].Position[1]},{vertices[index].Position[2]}]");
-            Debug.LogWarning($"TRIANGULATION: ... vertex n = [{vertices[index].Normal[0]},{vertices[index].Normal[1]},{vertices[index].Normal[2]}]");
+            delpointsList.Add(GetDelPointFromPointAndNormal(vertex.u, vertex.v, vertex.px, vertex.py, vertex.pz, vertex.nx, vertex.ny, vertex.nz));
+            Debug.LogWarning($"TRIANGULATION: ... vertex = [{DelPointToString(delpointsList[index])}]");
             index++;
         }
+        
+        var delpoints = new IPoint[delpointsList.Count];
 
-        List<Vector3> meshVertices = new List<Vector3>();
-        List<Vector3> meshNormals = new List<Vector3>();
-        List<int> meshIndices = new List<int>();
-        
-        var result = MIConvexHull.Triangulation.CreateDelaunay(vertices);
-        Debug.LogWarning($"TRIANGULATION: output ... {result.Cells.Count()}");
-        
-        foreach (var cell in result.Cells)
+        index = 0;
+        foreach (var dp in delpointsList)
         {
-            Debug.LogWarning($"TRIANGULATION: ... face vertex count = {cell.Vertices.Count()}");
-            Debug.LogWarning($"TRIANGULATION: ... face normal component count = {cell.Normal.Length}");
+            delpoints[index] = dp;
+            index++;
+        }
+        
+        var delaunator = new Delaunator(delpoints);
+        Debug.LogWarning($"TRIANGULATION: output triangle count ... {delaunator.GetTriangles().Count()}");
+        
+        foreach (var triangle in delaunator.GetTriangles())
+        {
+            var vertices = new IPoint[3];
+            index = 0;
+            foreach (var dp in triangle.Points)
+            {
+                vertices[index] = dp;
+                index++;
+            }
+
+            var dp0 = vertices[0] as DelPoint;
+            var dp1 = vertices[1] as DelPoint;
+            var dp2 = vertices[2] as DelPoint;
             
-            Debug.LogWarning($"TRIANGULATION: ... vertex = {VertexToString(cell.Vertices[0])}");
-            GetPointAndNormalFromVertex(cell.Vertices[0], out var point0, out var normal0);
+            Debug.LogWarning($"TRIANGULATION: ... vertex = {DelPointToString(dp0)}");
+            GetPointAndNormalFromDelPoint(dp0, out var point0, out var normal0);
             meshVertices.Add(point0);
             meshNormals.Add(normal0);
             meshIndices.Add(meshIndices.Count);
             
-            Debug.LogWarning($"TRIANGULATION: ... vertex = {VertexToString(cell.Vertices[1])}");
-            GetPointAndNormalFromVertex(cell.Vertices[1], out var point1, out var normal1);
+            Debug.LogWarning($"TRIANGULATION: ... vertex = {DelPointToString(dp1)}");
+            GetPointAndNormalFromDelPoint(dp1, out var point1, out var normal1);
             meshVertices.Add(point1);
             meshNormals.Add(normal1);
             meshIndices.Add(meshIndices.Count);
             
-            Debug.LogWarning($"TRIANGULATION: ... vertex = {VertexToString(cell.Vertices[2])}");
-            GetPointAndNormalFromVertex(cell.Vertices[2], out var point2, out var normal2);
+            Debug.LogWarning($"TRIANGULATION: ... vertex = {DelPointToString(dp2)}");
+            GetPointAndNormalFromDelPoint(dp2, out var point2, out var normal2);
             meshVertices.Add(point2);
             meshNormals.Add(normal2);
             meshIndices.Add(meshIndices.Count);
         }
+
+        // List<Vertex> vertices = new List<Vertex>();
+        // var index = 0;
+        //
+        // Debug.LogWarning($"TRIANGULATION: input ... num vertices = {surfaceVertices.Count()}");
+        // foreach (var vertex in surfaceVertices)
+        // {
+        //     Debug.LogWarning($"TRIANGULATION: ... source point = [{vertex.px},{vertex.py},{vertex.pz}]");
+        //     Debug.LogWarning($"TRIANGULATION: ... source normal = [{vertex.nx},{vertex.ny},{vertex.nz}]");
+        //     vertices.Add(GetVertexFromPointAndNormal(vertex.px, vertex.py, vertex.pz, vertex.nx, vertex.ny, vertex.nz));
+        //     Debug.LogWarning($"TRIANGULATION: ... vertex = [{VertexToString(vertices[index])}]");
+        //     index++;
+        // }
+        //
+        // var result = MIConvexHull.Triangulation.CreateDelaunay(vertices);
+        // Debug.LogWarning($"TRIANGULATION: output ... {result.Cells.Count()}");
+        //
+        // foreach (var cell in result.Cells)
+        // {
+        //     Debug.LogWarning($"TRIANGULATION: ... face vertex count = {cell.Vertices.Count()}");
+        //     Debug.LogWarning($"TRIANGULATION: ... face normal component count = {cell.Normal.Length}");
+        //     
+        //     Debug.LogWarning($"TRIANGULATION: ... vertex = {VertexToString(cell.Vertices[0])}");
+        //     GetPointAndNormalFromVertex(cell.Vertices[0], out var point0, out var normal0);
+        //     meshVertices.Add(point0);
+        //     meshNormals.Add(normal0);
+        //     meshIndices.Add(meshIndices.Count);
+        //     
+        //     Debug.LogWarning($"TRIANGULATION: ... vertex = {VertexToString(cell.Vertices[1])}");
+        //     GetPointAndNormalFromVertex(cell.Vertices[1], out var point1, out var normal1);
+        //     meshVertices.Add(point1);
+        //     meshNormals.Add(normal1);
+        //     meshIndices.Add(meshIndices.Count);
+        //     
+        //     Debug.LogWarning($"TRIANGULATION: ... vertex = {VertexToString(cell.Vertices[2])}");
+        //     GetPointAndNormalFromVertex(cell.Vertices[2], out var point2, out var normal2);
+        //     meshVertices.Add(point2);
+        //     meshNormals.Add(normal2);
+        //     meshIndices.Add(meshIndices.Count);
+        // }
 
         var newMesh = new Mesh { vertices = meshVertices.ToArray(), normals = meshNormals.ToArray() };
         newMesh.SetIndices(meshIndices.ToArray(), MeshTopology.Triangles, 0);
@@ -95,27 +163,50 @@ public class SurfaceAssetCreator : MonoBehaviour
         return newMesh;
     }
 
-    private void GetPointAndNormalFromVertex(Vertex vertex, out Vector3 point, out Vector3 normal)
+    private void GetPointAndNormalFromDelPoint(DelPoint vertex, out Vector3 point, out Vector3 normal)
     {
-        point = new Vector3(
-            (float)vertex.Position[0], 
-            (float)vertex.Position[1], 
-            (float)vertex.Position[2]);
-        normal = new Vector3(vertex.Normal[0], vertex.Normal[1], vertex.Normal[2]);
+        point = vertex.Point;
+        normal = vertex.Normal;
     }
 
-    private Vertex GetVertexFromPointAndNormal(float px, float py, float pz, float nx, float ny, float nz)
+    private DelPoint GetDelPointFromPointAndNormal(int u, int v, float px, float py, float pz, float nx, float ny, float nz)
     {
-        return new Vertex()
+        return new DelPoint()
         {
-            Position = new[] { (double)px, (double)py, (double)pz },
-            Normal = new[] { nx, ny, nz }
+            X = (double)u, 
+            Y = (double)v,
+            Point = new Vector3(px, py, pz),
+            Normal = new Vector3(nx, ny, nz )
         };
     }
 
-    private string VertexToString(Vertex vertex)
+    private string DelPointToString(DelPoint vertex)
     {
         return
-            $"{vertex.Position[0]}, {vertex.Position[1]}, {vertex.Position[2]} ... {vertex.Normal[0]}, {vertex.Normal[1]}, {vertex.Normal[2]}";
+            $"{vertex.X}, ..., {vertex.Y} ... {vertex.Normal[0]}, {vertex.Normal[1]}, {vertex.Normal[2]}";
     }
+
+    // private void GetPointAndNormalFromVertex(Vertex vertex, out Vector3 point, out Vector3 normal)
+    // {
+    //     point = new Vector3(
+    //         (float)vertex.Position[0], 
+    //         (float)vertex.Position[1], 
+    //         (float)vertex.Position[^1]);
+    //     normal = new Vector3(vertex.Normal[0], vertex.Normal[1], vertex.Normal[2]);
+    // }
+    //
+    // private Vertex GetVertexFromPointAndNormal(float px, float py, float pz, float nx, float ny, float nz)
+    // {
+    //     return new Vertex()
+    //     {
+    //         Position = new[] { (double)px, (double)py, (double)pz },
+    //         Normal = new[] { nx, ny, nz }
+    //     };
+    // }
+    //
+    // private string VertexToString(Vertex vertex)
+    // {
+    //     return
+    //         $"{vertex.Position[0]}, ..., {vertex.Position[^1]} ... {vertex.Normal[0]}, {vertex.Normal[1]}, {vertex.Normal[2]}";
+    // }
 }

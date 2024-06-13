@@ -13,6 +13,8 @@ public class Surface : MonoBehaviour
         {
             public struct SurfaceVertexData
             {
+                public int u;
+                public int v;
                 public float px;
                 public float py;
                 public float pz;
@@ -41,6 +43,8 @@ public class Surface : MonoBehaviour
                     foreach (var vertexData in surfaceData.vertices)
                     {
                         Debug.Log($"Writing p, n = [{vertexData.px},{vertexData.py},{vertexData.pz}], [{vertexData.nx},{vertexData.ny},{vertexData.nz}]");
+                        bw.Write(vertexData.u);
+                        bw.Write(vertexData.v);
                         bw.Write(vertexData.px);
                         bw.Write(vertexData.py);
                         bw.Write(vertexData.pz);
@@ -73,6 +77,8 @@ public class Surface : MonoBehaviour
                     for (var vertIndex = 0; vertIndex < numVertices; vertIndex++)
                     {
                         var vertData = new SurfaceData.SurfaceVertexData();
+                        vertData.u = br.ReadInt32();
+                        vertData.v = br.ReadInt32();
                         vertData.px = br.ReadSingle();
                         vertData.py = br.ReadSingle();
                         vertData.pz = br.ReadSingle();
@@ -89,7 +95,7 @@ public class Surface : MonoBehaviour
             return surfacesData;
         }
 
-        public static SurfacesSerializedData CreateFromMesh(Vector3[] points, Vector3[] normals)
+        public static SurfacesSerializedData CreateFromMesh(Vector3[] points, Vector3[] normals, int[] Us, int[] Vs)
         {
             var surfacesData = new SurfacesSerializedData();
             surfacesData.surfaces = new List<SurfaceData>();
@@ -101,6 +107,8 @@ public class Surface : MonoBehaviour
                 {
                     var vertexData = new SurfaceData.SurfaceVertexData();
                     Debug.Log($"CreateFromMesh() source p = {point}, n = {normals[pindex]}");
+                    vertexData.u = Us[pindex];
+                    vertexData.v = Vs[pindex];
                     vertexData.px = point.x;
                     vertexData.py = point.y;
                     vertexData.pz = point.z;
@@ -127,6 +135,8 @@ public class Surface : MonoBehaviour
                 foreach (var surfacePoint in surface._surfacePoints)
                 {
                     var vertexData = new SurfaceData.SurfaceVertexData();
+                    vertexData.u = surfacePoint.U;
+                    vertexData.v = surfacePoint.V;
                     vertexData.px = surfacePoint.point.x;
                     vertexData.py = surfacePoint.point.y;
                     vertexData.pz = surfacePoint.point.z;
@@ -141,7 +151,7 @@ public class Surface : MonoBehaviour
         }
     }
     
-    public struct Vertex : IVertex2D
+    public class Vertex : IVertex2D
     {
         public double X { get; set; }
         public double Y { get; set; }

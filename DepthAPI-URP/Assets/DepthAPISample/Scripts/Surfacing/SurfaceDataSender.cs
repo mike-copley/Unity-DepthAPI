@@ -87,7 +87,9 @@ public class SurfaceDataSender : MonoBehaviour
                 Vector3.up,
                 Vector3.up,
                 Vector3.up,
-            }
+            },
+            new int[] { -1, 0, 1, -1, 0, 1, -1, 0, 1},
+            new int[] { -1, -1, -1, 0, 0, 0, 1, 1, 1}
         );
         var testSerializedData = Surface.SurfacesSerializedData.Serialize(testSurfacesData);
         SendDataToListener(testSerializedData);
