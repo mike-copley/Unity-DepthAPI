@@ -104,7 +104,7 @@ public class SurfaceDataListener : MonoBehaviour
                 {
                     // Translate data bytes to a ASCII string.
                     // data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
-                    // Debug.LogWarning($"LISTENER: Received: {data}");
+                    Debug.LogWarning($"LISTENER: Receiving {bytesRead} bytes of data...");
                     
                     var surfaceDataReceived = new byte[bytesRead];
                     for (var index = 0; index < bytesRead; index++)

@@ -12,7 +12,6 @@ public class SurfaceDataSender : MonoBehaviour
     public string ListenerAddress = "192.168.86.26";
     public int ListenerPort = 60523;
     public bool SendTestData = false;
-    public string TestDataToSend = "Mary had a little lamb.";
 
     // Update is called once per frame
     void Update()
@@ -37,7 +36,7 @@ public class SurfaceDataSender : MonoBehaviour
             // Send the message to the connected TcpServer.
             stream.Write(dataToSend, 0, dataToSend.Length);
 
-            Debug.LogWarning($"SENDER: Sent: {TestDataToSend}");
+            Debug.LogWarning($"SENDER: Sending {dataToSend.Length} bytes of data...");
 
             // Receive the server response.
 
@@ -63,7 +62,34 @@ public class SurfaceDataSender : MonoBehaviour
     private void SendTestDataToListener()
     {
         // Translate the passed message into ASCII and store it as a Byte array.
-        var data = System.Text.Encoding.ASCII.GetBytes(TestDataToSend);
-        SendDataToListener(data);
+        // var data = System.Text.Encoding.ASCII.GetBytes(TestDataToSend);
+        var testSurfacesData = Surface.SurfacesSerializedData.CreateFromMesh(
+            new Vector3[]
+            {
+                new Vector3(-1F, 0F, -1F),
+                new Vector3(0F, 0F, -1F),
+                new Vector3(1F, 0F, -1F),
+                new Vector3(-1F, 0F, 0F),
+                new Vector3(0F, 0F, 0F),
+                new Vector3(1F, 0F, 0F),
+                new Vector3(-1F, 0F, 1F),
+                new Vector3(0F, 0F, 1F),
+                new Vector3(1F, 0F, 1F),
+            },
+            new Vector3[]
+            {
+                Vector3.up,
+                Vector3.up,
+                Vector3.up,
+                Vector3.up,
+                Vector3.up,
+                Vector3.up,
+                Vector3.up,
+                Vector3.up,
+                Vector3.up,
+            }
+        );
+        var testSerializedData = Surface.SurfacesSerializedData.Serialize(testSurfacesData);
+        SendDataToListener(testSerializedData);
     }
 }

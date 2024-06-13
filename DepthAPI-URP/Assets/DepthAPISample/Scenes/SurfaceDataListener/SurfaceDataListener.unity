@@ -279,7 +279,6 @@ MonoBehaviour:
   ListenerAddress: 192.168.86.26
   ListenerPort: 60523
   SendTestData: 0
-  TestDataToSend: Mary had a little lamb.
 --- !u!1 &1423861537
 GameObject:
   m_ObjectHideFlags: 0

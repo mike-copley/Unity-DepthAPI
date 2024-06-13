@@ -7,22 +7,14 @@ public class SurfacesEditor : MonoBehaviour
     public SurfaceMaker SurfaceMaker;
     public SurfaceEditControls SurfaceEditControls;
     public SurfaceDataSender SurfaceDataSender;
-    
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 
     public void HandleStartButtonPressed()
     {
         // SurfaceDataSender.SendTestData = true;
+        var surfaces = SurfaceMaker.BakedSurfaces;
+        var surfacesData = Surface.SurfacesSerializedData.CreateFromSurfaces(surfaces);
+        var serializedData = Surface.SurfacesSerializedData.Serialize(surfacesData);
+        SurfaceDataSender.SendDataToListener(serializedData);
     }
     
     public void HandleLeftTriggerDown()

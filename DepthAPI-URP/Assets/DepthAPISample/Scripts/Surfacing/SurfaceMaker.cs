@@ -16,19 +16,9 @@ public class SurfaceMaker : MonoBehaviour
     private List<Surface> _Surfaces = new List<Surface>();
 
     public Surface ActiveSurface => _activeSurface;
+
+    public IList<Surface> BakedSurfaces => _Surfaces;
     
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void StartNewSurface(
         Vector3 referenceOrientationUp, Vector3 referenceOrientationRight, 
         Vector3 surfacePlaneOrigin, Vector3 surfacePlaneNormal)

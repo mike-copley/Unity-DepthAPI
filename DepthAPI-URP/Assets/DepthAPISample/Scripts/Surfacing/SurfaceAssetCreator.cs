@@ -21,7 +21,9 @@ public class SurfaceAssetCreator : MonoBehaviour
 
     public void HandleSurfaceDataReceived()
     {
-        var surfaceData = SurfaceDataListener.SurfaceDataReceivedEventData;
+        var surfaceSerializedData = SurfaceDataListener.SurfaceDataReceivedEventData;
+        var surfacesData = Surface.SurfacesSerializedData.Deserialize(surfaceSerializedData);
+        
         var createdGameObject = Instantiate(SurfaceAsset, Vector3.zero, Quaternion.identity);
         
         // #if UNITY_EDITOR
@@ -32,25 +34,27 @@ public class SurfaceAssetCreator : MonoBehaviour
 
         // TODO: replace the mesh in the instantiated asset with the
         // surface data that is provided, and then triangulated
-        var points = meshFilter.mesh.vertices;
-        var normals = meshFilter.mesh.normals;
+        // var points = meshFilter.mesh.vertices;
+        // var normals = meshFilter.mesh.normals;
         
-        var triangulatedMesh = Triangulate(points, normals);
+        var triangulatedMesh = Triangulate(surfacesData.surfaces[0].vertices);
         meshFilter.mesh = triangulatedMesh;
         meshFilter.sharedMesh = triangulatedMesh;
     }
 
-    private Mesh Triangulate(Vector3[] points, Vector3[] normals)
+    private Mesh Triangulate(List<Surface.SurfacesSerializedData.SurfaceData.SurfaceVertexData> surfaceVertices)
     {
         List<Vertex> vertices = new List<Vertex>();
         var index = 0;
         
-        Debug.LogWarning($"TRIANGULATION: input ... {points.Length}, {normals.Length}");
-        foreach (var point in points)
+        Debug.LogWarning($"TRIANGULATION: input ... num vertices = {surfaceVertices.Count()}");
+        foreach (var vertex in surfaceVertices)
         {
-            vertices.Add(GetVertexFromPointAndNormal(point, normals[index]));
-            Debug.LogWarning($"TRIANGULATION: ... point = {point}");
-            Debug.LogWarning($"TRIANGULATION: ... normal = {normals[index]}");
+            Debug.LogWarning($"TRIANGULATION: ... source point = [{vertex.px},{vertex.py},{vertex.pz}]");
+            Debug.LogWarning($"TRIANGULATION: ... source normal = [{vertex.nx},{vertex.ny},{vertex.nz}]");
+            vertices.Add(GetVertexFromPointAndNormal(vertex.px, vertex.py, vertex.pz, vertex.nx, vertex.ny, vertex.nz));
+            Debug.LogWarning($"TRIANGULATION: ... vertex p = [{vertices[index].Position[0]},{vertices[index].Position[1]},{vertices[index].Position[2]}]");
+            Debug.LogWarning($"TRIANGULATION: ... vertex n = [{vertices[index].Normal[0]},{vertices[index].Normal[1]},{vertices[index].Normal[2]}]");
             index++;
         }
 
@@ -100,12 +104,12 @@ public class SurfaceAssetCreator : MonoBehaviour
         normal = new Vector3(vertex.Normal[0], vertex.Normal[1], vertex.Normal[2]);
     }
 
-    private Vertex GetVertexFromPointAndNormal(Vector3 point, Vector3 normal)
+    private Vertex GetVertexFromPointAndNormal(float px, float py, float pz, float nx, float ny, float nz)
     {
         return new Vertex()
         {
-            Position = new[] { (double)point.x, (double)point.y, (double)point.z },
-            Normal = new[] { normal.x, normal.y, normal.z }
+            Position = new[] { (double)px, (double)py, (double)pz },
+            Normal = new[] { nx, ny, nz }
         };
     }
 
