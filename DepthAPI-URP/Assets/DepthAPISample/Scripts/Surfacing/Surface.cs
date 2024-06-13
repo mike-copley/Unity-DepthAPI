@@ -1,11 +1,117 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using MIConvexHull;
 using UnityEngine;
 
 public class Surface : MonoBehaviour
 {
+    public class SurfacesSerializedData
+    {
+        public class SurfaceData
+        {
+            public struct SurfaceVertexData
+            {
+                public Vector3 point;
+                public Vector3 normal;
+            }
+
+            public SurfaceVertexData[] vertices;
+        }
+
+        public SurfaceData[] surfaces;
+
+        public static byte[] Serialize(SurfacesSerializedData surfacesData)
+        {
+            byte[] serializedData = null;
+            using var ms = new MemoryStream();
+            using (var bw = new BinaryWriter(ms))
+            {
+                bw.Write(surfacesData.surfaces.Length);
+                foreach (var surfaceData in surfacesData.surfaces)
+                {
+                    bw.Write(surfaceData.vertices.Length);
+                    foreach (var vertexData in surfaceData.vertices)
+                    {
+                        bw.Write(vertexData.point.x);
+                        bw.Write(vertexData.point.y);
+                        bw.Write(vertexData.point.z);
+                        bw.Write(vertexData.normal.x);
+                        bw.Write(vertexData.normal.y);
+                        bw.Write(vertexData.normal.z);
+                    }
+                }
+            }
+
+            serializedData = ms.ToArray();
+
+            return serializedData;
+        }
+        
+        public static SurfacesSerializedData Deserialize(byte[] serializedData)
+        {
+            var surfacesData = new SurfacesSerializedData();
+            using var ms = new MemoryStream(serializedData);
+            using (var br = new BinaryReader(ms))
+            {
+                var numSurfaces = br.ReadInt32();
+                surfacesData.surfaces = new SurfaceData[numSurfaces];
+                for (var surfIndex = 0; surfIndex < numSurfaces; surfIndex++)
+                {
+                    var surfData = new SurfaceData();
+                    surfacesData.surfaces[surfIndex] = surfData;
+
+                    var numVertices = br.ReadInt32();
+                    surfData.vertices = new SurfaceData.SurfaceVertexData[numVertices];
+                    for (var vertIndex = 0; vertIndex < numVertices; vertIndex++)
+                    {
+                        var vertData = new SurfaceData.SurfaceVertexData();
+                        surfData.vertices[vertIndex] = vertData;
+
+                        var px = br.ReadSingle();
+                        var py = br.ReadSingle();
+                        var pz = br.ReadSingle();
+                        
+                        vertData.point = new Vector3(px, py, pz);
+
+                        var nx = br.ReadSingle();
+                        var ny = br.ReadSingle();
+                        var nz = br.ReadSingle();
+                        
+                        vertData.normal = new Vector3(nx, ny, nz);
+                    }
+                }
+            }
+
+            return surfacesData;
+        }
+
+        public static SurfacesSerializedData CreateFromSurfaces(IList<Surface> surfaces)
+        {
+            var surfacesData = new SurfacesSerializedData();
+            surfacesData.surfaces = new SurfaceData[surfaces.Count];
+            var sindex = 0;
+            foreach (var surface in surfaces)
+            {
+                var surfaceData = new SurfaceData();
+                surfacesData.surfaces[sindex] = surfaceData;
+                sindex++;
+                surfaceData.vertices = new SurfaceData.SurfaceVertexData[surface._surfacePoints.Count];
+                var pindex = 0;
+                foreach (var surfacePoint in surface._surfacePoints)
+                {
+                    var vertexData = new SurfaceData.SurfaceVertexData();
+                    surfaceData.vertices[pindex] = vertexData;
+                    pindex++;
+                    vertexData.point = surfacePoint.point;
+                    vertexData.normal = surfacePoint.normal;
+                }
+            }
+            return surfacesData;
+        }
+    }
+    
     public struct Vertex : IVertex2D
     {
         public double X { get; set; }

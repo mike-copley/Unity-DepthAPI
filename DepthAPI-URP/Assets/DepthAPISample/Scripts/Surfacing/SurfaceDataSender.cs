@@ -13,12 +13,6 @@ public class SurfaceDataSender : MonoBehaviour
     public int ListenerPort = 60523;
     public bool SendTestData = false;
     public string TestDataToSend = "Mary had a little lamb.";
-    
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
 
     // Update is called once per frame
     void Update()
@@ -32,38 +26,27 @@ public class SurfaceDataSender : MonoBehaviour
 
     public void SendDataToListener(byte[] dataToSend)
     {
-        
-    }
-    
-    private void SendTestDataToListener()
-    {
         try
         {
             // Prefer a using declaration to ensure the instance is Disposed later.
             using TcpClient client = new TcpClient(ListenerAddress, ListenerPort);
 
-            // Translate the passed message into ASCII and store it as a Byte array.
-            Byte[] data = System.Text.Encoding.ASCII.GetBytes(TestDataToSend);
-
             // Get a client stream for reading and writing.
             NetworkStream stream = client.GetStream();
 
             // Send the message to the connected TcpServer.
-            stream.Write(data, 0, data.Length);
+            stream.Write(dataToSend, 0, dataToSend.Length);
 
             Debug.LogWarning($"SENDER: Sent: {TestDataToSend}");
 
             // Receive the server response.
 
             // Buffer to store the response bytes.
-            data = new Byte[256];
-
-            // String to store the response ASCII representation.
-            String responseData = String.Empty;
+            var response = new Byte[256];
 
             // Read the first batch of the TcpServer response bytes.
-            Int32 bytes = stream.Read(data, 0, data.Length);
-            responseData = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
+            Int32 bytes = stream.Read(response, 0, response.Length);
+            var responseData = System.Text.Encoding.ASCII.GetString(response, 0, bytes);
             Debug.LogWarning($"SENDER: Received: {responseData}");
 
             // Explicit close is not necessary since TcpClient.Dispose() will be
@@ -75,5 +58,12 @@ public class SurfaceDataSender : MonoBehaviour
         {
             Debug.LogException(e);
         }
+    }
+    
+    private void SendTestDataToListener()
+    {
+        // Translate the passed message into ASCII and store it as a Byte array.
+        var data = System.Text.Encoding.ASCII.GetBytes(TestDataToSend);
+        SendDataToListener(data);
     }
 }
